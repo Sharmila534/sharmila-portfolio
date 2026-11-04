@@ -1,0 +1,457 @@
+---
+// src/components/Hero.astro
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+---
+
+<section id="hero" class="hero-section" data-section-motion="name" aria-labelledby="hero-name">
+  <div class="atelier-container">
+    <div class="hero-grid">
+      <!-- Left Narrative Column -->
+      <div class="hero-narrative reveal-on-scroll">
+        <div class="hero-badge-wrap">
+          <span class="atelier-badge atelier-badge-accent">
+            <span class="pulse-indicator"></span>
+            CURRENT PROJECT WORK // TERRASEG AI & AQUAGUARD AI
+          </span>
+          <span class="cgpa-chip">VIT-AP '28 • CGPA {PORTFOLIO_DATA.profile.cgpa}</span>
+        </div>
+
+        <h1 id="hero-name" class="editorial-title hero-name">
+          {PORTFOLIO_DATA.profile.fullName}
+        </h1>
+
+        <p class="hero-headline">
+          {PORTFOLIO_DATA.profile.headline}
+        </p>
+
+        <p class="hero-bio">
+          {PORTFOLIO_DATA.profile.shortBio}
+        </p>
+
+        <!-- CTA Action Buttons -->
+        <div class="hero-cta-group">
+          <a href="#projects" class="btn-atelier-primary">
+            <span>Explore My Work</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+
+          <a href="#resume" class="btn-atelier-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>View Resume</span>
+          </a>
+
+          <a href="#contact" class="btn-atelier-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+            <span>Contact</span>
+          </a>
+        </div>
+
+        <!-- Pillar Keywords -->
+        <div class="pillars-row">
+          <div class="pillar-box">
+            <span class="p-num">01</span>
+            <span class="p-txt">Geospatial CV & Remote Sensing</span>
+          </div>
+          <div class="pillar-box">
+            <span class="p-num">02</span>
+            <span class="p-txt">Multi-Agent Applied GenAI</span>
+          </div>
+          <div class="pillar-box">
+            <span class="p-num">03</span>
+            <span class="p-txt">Systems & Analytics Foundations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Abstract Animated Visual Composition -->
+      <div class="hero-visual reveal-on-scroll" data-transition-panel>
+        <div class="visual-stage" data-depth-scene>
+          <span class="scene-orbit scene-orbit-primary" aria-hidden="true"><i></i></span>
+          <span class="scene-orbit scene-orbit-secondary" aria-hidden="true"><i></i></span>
+          <span class="scene-spark scene-spark-one" aria-hidden="true"></span>
+          <span class="scene-spark scene-spark-two" aria-hidden="true"></span>
+          <div class="scene-float-label scene-label-vision" aria-hidden="true">
+            <span class="scene-label-kicker">01 / LANDSLIDE4SENSE</span>
+            <strong>14-channel inputs</strong>
+            <span class="scene-label-mark"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="scene-float-label scene-label-agents" aria-hidden="true">
+            <span class="scene-label-kicker">02 / APPLIED AI</span>
+            <strong>Prompt-led agents</strong>
+            <span class="scene-label-note">Supplied demo inputs</span>
+          </div>
+          <img class="abstract-composition hero-artwork" src={`${import.meta.env.BASE_URL}images/atelier/hero-glass-petals.webp`} alt="Translucent glass petals orbiting a luminous geometric core" width="1672" height="941" fetchpriority="high" />
+
+          <!-- Floating Research Capsule Card -->
+          <div class="atelier-card research-capsule">
+            <div class="capsule-head">
+              <span class="capsule-label">CURRENT FOCUS</span>
+              <span class="live-pulse-badge">
+                <span class="pulse-dot"></span>
+                ACTIVE PROTOTYPES
+              </span>
+            </div>
+            <div class="capsule-body">
+              <div class="proj-badge">
+                <strong>TerraSeg AI:</strong> multi-dataset landslide segmentation research prototype
+              </div>
+              <div class="proj-badge">
+                <strong>AquaGuard AI:</strong> Multi-agent decision-support prototype
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    padding-top: clamp(6.5rem, 12vw, 10rem);
+    padding-bottom: clamp(3.5rem, 7vw, 6rem);
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .hero-badge-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .pulse-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-rose-gold-text);
+    box-shadow: 0 0 0 3px rgba(197, 143, 125, 0.25);
+    display: inline-block;
+  }
+  .cgpa-chip {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--color-taupe-muted);
+  }
+  .hero-name {
+    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    line-height: 1.05;
+    margin-bottom: 0.85rem;
+  }
+  .hero-headline {
+    font-family: var(--font-serif);
+    font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+    color: var(--color-plum-soft);
+    line-height: 1.35;
+    margin-bottom: 1.25rem;
+  }
+  .hero-bio {
+    font-size: var(--font-body);
+    color: var(--color-ink-blackberry);
+    line-height: 1.7;
+    max-width: 580px;
+    margin-bottom: 2rem;
+  }
+  .hero-cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 2.5rem;
+  }
+  .pillars-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-rose-gold-light);
+  }
+  .pillar-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .p-num {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-rose-gold-text);
+    font-weight: 700;
+  }
+  .p-txt {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    line-height: 1.3;
+  }
+  .hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    transform-style: preserve-3d;
+  }
+  .hero-visual::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    top: 10%;
+    width: min(76%, 400px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(195, 177, 225, 0.42), rgba(232, 197, 200, 0.18) 42%, transparent 72%);
+    filter: blur(24px);
+    animation: hero-aura 9s ease-in-out infinite alternate;
+  }
+  @keyframes hero-aura {
+    from { transform: translate3d(-8px, 4px, -20px) scale(0.94); opacity: 0.62; }
+    to { transform: translate3d(10px, -10px, -20px) scale(1.06); opacity: 0.92; }
+  }
+  .visual-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    isolation: isolate;
+    perspective: 1400px;
+    transform-style: preserve-3d;
+    transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform: perspective(1400px) rotateX(var(--scene-tilt-y, 0deg)) rotateY(var(--scene-tilt-x, 0deg));
+  }
+  .scene-orbit {
+    position: absolute;
+    z-index: 3;
+    top: 42%;
+    left: 50%;
+    width: 112%;
+    height: 58%;
+    border: 1px solid rgba(197, 143, 125, 0.54);
+    border-radius: 50%;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 18px rgba(197, 143, 125, 0.13), inset 0 0 12px rgba(197, 143, 125, 0.08);
+  }
+  .scene-orbit-primary {
+    transform: translate(-50%, -50%) rotateX(68deg) rotateZ(-20deg) translateZ(36px);
+    animation: orbit-turn 18s linear infinite;
+  }
+  .scene-orbit-secondary {
+    top: 44%;
+    width: 91%;
+    height: 72%;
+    border-color: rgba(165, 143, 193, 0.62);
+    box-shadow: 0 0 16px rgba(165, 143, 193, 0.18);
+    transform: translate(-50%, -50%) rotateX(70deg) rotateZ(34deg) translateZ(58px);
+    animation: orbit-turn-reverse 24s linear infinite;
+  }
+  .scene-orbit i {
+    position: absolute;
+    top: 6%;
+    left: 19%;
+    width: 13px;
+    height: 13px;
+    border: 1px solid rgba(255, 253, 250, 0.9);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fffdfb, #e9bfd0 48%, #9b739d 100%);
+    box-shadow: 0 0 16px rgba(255, 241, 232, 0.95), 0 0 28px rgba(197, 143, 125, 0.4);
+  }
+  .scene-orbit-secondary i { top: auto; left: auto; right: 13%; bottom: 12%; width: 9px; height: 9px; }
+  @keyframes orbit-turn { to { rotate: 360deg; } }
+  @keyframes orbit-turn-reverse { to { rotate: -360deg; } }
+  .scene-spark {
+    position: absolute;
+    z-index: 4;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fffaf3;
+    box-shadow: 0 0 12px 4px rgba(255, 242, 226, 0.9), 0 0 34px 9px rgba(197, 143, 125, 0.34);
+    pointer-events: none;
+    animation: spark-breathe 3.8s ease-in-out infinite alternate;
+  }
+  .scene-spark-one { top: 16%; right: 17%; }
+  .scene-spark-two { top: 52%; left: 13%; animation-delay: -1.8s; }
+  @keyframes spark-breathe { from { opacity: 0.38; scale: 0.72; } to { opacity: 1; scale: 1.18; } }
+  .scene-float-label {
+    position: absolute;
+    z-index: 5;
+    display: grid;
+    gap: 0.32rem;
+    min-width: 174px;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid rgba(255, 253, 250, 0.9);
+    border-radius: 13px;
+    background: linear-gradient(145deg, rgba(255, 253, 250, 0.83), rgba(244, 237, 228, 0.55));
+    box-shadow: 0 18px 34px -20px rgba(42, 22, 37, 0.55), inset 0 1px rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform-style: preserve-3d;
+    pointer-events: none;
+    animation: label-float 6.8s ease-in-out infinite alternate;
+  }
+  .scene-label-vision { top: 18%; left: -4%; transform: translateZ(84px) rotateY(7deg) rotateX(-2deg); }
+  .scene-label-agents { top: 32%; right: -6%; transform: translateZ(108px) rotateY(-8deg) rotateX(2deg); animation-delay: -2.7s; }
+  .scene-label-kicker { font: 500 0.59rem/1.35 var(--font-mono); letter-spacing: 0.08em; color: var(--color-taupe-muted); }
+  .scene-float-label strong { font: 600 0.83rem/1.3 var(--font-sans); color: var(--color-plum-deep); }
+  .scene-label-note { font: 400 0.66rem/1.35 var(--font-mono); color: var(--color-taupe-muted); }
+  .scene-label-mark { display: flex; gap: 3px; align-items: end; height: 13px; }
+  .scene-label-mark i { display: block; width: 5px; border-radius: 2px; background: linear-gradient(180deg, #c58f7d, #8f6e9c); }
+  .scene-label-mark i:nth-child(1), .scene-label-mark i:nth-child(5) { height: 5px; }
+  .scene-label-mark i:nth-child(2), .scene-label-mark i:nth-child(4) { height: 9px; }
+  .scene-label-mark i:nth-child(3), .scene-label-mark i:nth-child(6) { height: 13px; }
+  @keyframes label-float { from { translate: 0 3px; } to { translate: 0 -9px; } }
+  .abstract-composition {
+    position: relative;
+    z-index: 1;
+    transform: translateZ(20px);
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    filter: drop-shadow(0 24px 28px rgba(42, 22, 37, 0.16));
+    animation: hero-drift 7s ease-in-out infinite alternate;
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1), filter 600ms ease;
+  }
+  @keyframes hero-drift {
+    from { translate: 0 2px; rotate: -0.35deg; }
+    to { translate: 0 -11px; rotate: 0.55deg; }
+  }
+  .hero-artwork {
+    display: block;
+    width: min(100%, 520px);
+    height: auto;
+    border-radius: 3px;
+  }
+  .research-capsule {
+    position: relative;
+    z-index: 6;
+    margin-top: -34px;
+    padding: 1.25rem 1.5rem;
+    max-width: 380px;
+    width: 100%;
+    transform: translateZ(58px) rotateX(1.5deg);
+    box-shadow: 0 28px 44px -22px rgba(42, 22, 37, 0.42), var(--shadow-md);
+    transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 500ms ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .visual-stage:hover .abstract-composition {
+      transform: translate3d(0, -3px, 36px) rotateY(-2deg) rotateX(1.3deg) scale(1.012);
+      filter: drop-shadow(0 34px 32px rgba(42, 22, 37, 0.2));
+    }
+    .visual-stage:hover .research-capsule {
+      transform: translate3d(0, -8px, 74px) rotateX(0deg);
+      box-shadow: 0 34px 52px -20px rgba(42, 22, 37, 0.46), var(--shadow-md);
+    }
+    .visual-stage:hover .scene-label-vision { translate: -4px -4px 10px; }
+    .visual-stage:hover .scene-label-agents { translate: 4px -6px 14px; }
+  }
+  @media (max-width: 992px) {
+    .scene-label-vision { left: 0; }
+    .scene-label-agents { right: 0; }
+  }
+  @media (max-width: 600px) {
+    .hero-visual { width: 100%; min-width: 0; }
+    .visual-stage { width: 100%; }
+    .abstract-composition { width: 100%; }
+    .scene-orbit-primary { width: 103%; }
+    .scene-orbit-secondary { width: 82%; opacity: 0.55; }
+    .scene-float-label { min-width: 145px; padding: 0.65rem 0.75rem; }
+    .scene-label-vision { top: 11%; left: 0; }
+    .scene-label-agents { top: 30%; right: 0; }
+    .scene-label-kicker { font-size: 0.52rem; }
+    .scene-float-label strong { font-size: 0.73rem; }
+    .scene-label-note { font-size: 0.58rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-visual::before,
+    .scene-orbit,
+    .scene-spark,
+    .scene-float-label { animation: none; }
+    .visual-stage { transform: none !important; }
+    .abstract-composition { animation: none; transform: translateZ(16px); translate: none; rotate: none; }
+    .research-capsule { transform: none; }
+    .visual-stage:hover .abstract-composition,
+    .visual-stage:hover .research-capsule,
+    .visual-stage:hover .scene-label-vision,
+    .visual-stage:hover .scene-label-agents { transform: none; translate: none; }
+  }
+  .capsule-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(232, 213, 208, 0.6);
+  }
+  .capsule-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-taupe-muted);
+    letter-spacing: 0.06em;
+  }
+  .live-pulse-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-signal-water);
+    background: var(--color-signal-water-subtle);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(91, 142, 142, 0.3);
+  }
+  .pulse-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-signal-water);
+  }
+  .capsule-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-ink-blackberry);
+  }
+  .proj-badge strong {
+    color: var(--color-plum-deep);
+  }
+  @media (max-width: 992px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .hero-grid > *, .hero-narrative { min-width: 0; }
+    .pillars-row { grid-template-columns: 1fr; }
+    .hero-visual { margin-top: 2rem; }
+    .visual-stage::before { inset-inline: 12%; }
+  }
+  @media (max-width: 540px) {
+    .hero-name { max-width: 100%; font-size: clamp(2rem, 9.4vw, 2.55rem); line-height: 1.02; overflow-wrap: normal; text-wrap: balance; }
+    .hero-badge-wrap { align-items: flex-start; }
+    .hero-badge-wrap .atelier-badge { width:100%; max-width:100%; flex-wrap:wrap; white-space:normal; align-items:flex-start; border-radius:12px; line-height:1.45; }
+    .hero-badge-wrap .atelier-badge > span:last-child { min-width:0; }
+    .hero-headline,.hero-bio { max-width:100%; overflow-wrap:anywhere; }
+    .hero-headline { font-size: clamp(1.05rem, 4.8vw, 1.22rem); }
+    .pillars-row { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-visual::before,
+    .visual-stage::before,
+    .visual-stage::after { animation: none; }
+    .abstract-composition { animation: none; transform: translateZ(16px); translate: none; rotate: none; }
+    .research-capsule { transform: none; }
+    .visual-stage:hover .abstract-composition,
+    .visual-stage:hover .research-capsule { transform: none; }
+  }
+</style>

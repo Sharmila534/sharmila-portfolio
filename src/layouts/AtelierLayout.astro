@@ -1,0 +1,115 @@
+---
+// src/layouts/AtelierLayout.astro
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import RecruiterDrawer from '../components/RecruiterDrawer.astro';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+import '../styles/atelier.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const siteOrigin = Astro.site?.origin;
+const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const canonicalUrl = siteOrigin ? new URL(canonicalPath, siteOrigin).href : undefined;
+const socialImageUrl = siteOrigin ? new URL(`${basePath}images/atelier/hero-glass-petals.webp`, siteOrigin).href : undefined;
+
+const {
+  title = `${PORTFOLIO_DATA.profile.fullName} | The Digital Atelier`,
+  description = `${PORTFOLIO_DATA.profile.fullName} — ${PORTFOLIO_DATA.profile.headline}. Integrated M.Tech Software Engineering student at VIT-AP ('28, CGPA 9.13/10). Currently working on TerraSeg AI and AquaGuard AI.`
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+  <link rel="icon" type="image/svg+xml" href={`${basePath}favicon.svg`} />
+  {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+  {socialImageUrl && <meta property="og:image" content={socialImageUrl} />}
+  {socialImageUrl && <meta name="twitter:image" content={socialImageUrl} />}
+  <meta name="author" content={PORTFOLIO_DATA.profile.fullName} />
+  <meta name="keywords" content="Sai Sharmila Kinjarapu, VIT-AP, Software Engineering, Applied AI, Machine Learning, Computer Vision, TerraSeg AI, AquaGuard AI, U-Net, ResNet34, Multi-Agent AI, Google Gemini, Data Analytics, Python" />
+
+  <!-- OpenGraph Metadata -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content="The Digital Atelier" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+
+  <!-- Preconnect & Preload Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Italiana&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" 
+    rel="stylesheet" 
+  />
+
+  <!-- Structured Data Schema for Recruiter SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": PORTFOLIO_DATA.profile.fullName,
+    "alternateName": PORTFOLIO_DATA.profile.handle,
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Vellore Institute of Technology - Andhra Pradesh (VIT-AP)",
+      "department": "School of Computer Science and Engineering"
+    },
+    "hasCredential": {
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "Integrated M.Tech in Software Engineering (2023 - 2028)"
+    },
+    "jobTitle": PORTFOLIO_DATA.profile.headline,
+    "knowsAbout": [
+      "Software Engineering",
+      "Applied AI & Machine Learning",
+      "Computer Vision & Satellite Segmentation",
+      "Multi-Agent AI (Google Gemini)",
+      "Data Analytics & Business Intelligence"
+    ],
+    "sameAs": [
+      PORTFOLIO_DATA.links.linkedin,
+      PORTFOLIO_DATA.links.github
+    ]
+  })} />
+</head>
+<body data-base={basePath}>
+  <!-- Tactile Parchment Noise Overlay -->
+  <div class="atelier-grain" aria-hidden="true"></div>
+
+  <!-- Primary Floating Navigation -->
+  <Navbar />
+
+  <!-- Main Content Slot -->
+  <main id="main-content">
+    <slot />
+  </main>
+
+  <!-- Global Footer -->
+  <Footer />
+
+  <!-- Slide-over Recruiter Quick-View Sheet -->
+  <RecruiterDrawer />
+
+  <!-- A brief particle trail links the section artwork; it never covers text or controls. -->
+  <div class="cinematic-transition" data-cinematic-transition aria-hidden="true">
+    <canvas class="transition-particles" data-transition-particles></canvas>
+  </div>
+
+  <!-- Core Client Script -->
+  <script src="../scripts/atelier.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+---
+// src/components/About.astro
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+---
+
+<section id="about" class="about-section" data-section-motion="editorial" aria-labelledby="about-title">
+  <div class="atelier-container">
+    <div class="room-header reveal-on-scroll">
+      <div class="room-meta">
+        <span class="atelier-badge">FOUNDATIONS & ACADEMICS</span>
+        <span class="about-stamp">INTEGRATED M.TECH SE // VIT-AP '28</span>
+      </div>
+      <h2 id="about-title" class="editorial-title about-heading">
+        Rigorous Foundations, <span class="editorial-italic">Applied Intelligence.</span>
+      </h2>
+      <p class="about-lead">
+        Combining formal software engineering methods with empirical machine learning and computer vision research.
+      </p>
+    </div>
+
+    <div class="about-grid">
+      <!-- Left Narrative Bio -->
+      <div class="bio-card atelier-card reveal-on-scroll" data-transition-panel>
+        <h3 class="bio-title">Academic Profile & Focus</h3>
+        <p class="bio-p">
+          I am currently pursuing a 5-year <strong>Integrated Master of Technology (M.Tech) in Software Engineering</strong> at <strong>VIT-AP University</strong>, with expected graduation in <strong>2028</strong> and a cumulative grade point average of <strong>9.13 / 10.0</strong>.
+        </p>
+        <p class="bio-p">
+          My technical work spans satellite-image segmentation experiments in TerraSeg AI and a multi-agent decision-support prototype in AquaGuard AI. TerraSeg includes an implemented Gradio interface for patch inspection while consolidation of the broader research workflow remains in progress.
+        </p>
+        <p class="bio-p">
+          I document each experiment with its dataset and evaluation context. The reported TerraSeg results come from separate Landslide4Sense and Bijie studies; its Bijie evaluation uses landslide-positive imagery only. AquaGuard analyzes supplied/demo information only.
+        </p>
+
+        <!-- Focus Domains Grid -->
+        <div class="interests-grid">
+          {PORTFOLIO_DATA.profile.interests.map(interest => (
+            <div class="interest-pill">
+              <span class="interest-dot"></span>
+              <span>{interest}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right Academic Horizon & Coursework -->
+      <div class="academics-card atelier-card atelier-card-elevated reveal-on-scroll" data-transition-panel>
+        <div class="acad-header">
+          <div>
+            <span class="acad-label">DEGREE CANDIDACY</span>
+            <h3 class="acad-degree">{PORTFOLIO_DATA.education.degree}</h3>
+            <span class="acad-inst">{PORTFOLIO_DATA.education.institution}</span>
+          </div>
+          <div class="cgpa-box">
+            <span class="cgpa-val">9.13</span>
+            <span class="cgpa-scale">/ 10.0 CGPA</span>
+          </div>
+        </div>
+
+        <div class="timeline-row">
+          <div class="tl-chip">
+            <span class="tl-label">PROGRAM</span>
+            <span class="tl-val">5-Year Integrated Master</span>
+          </div>
+          <div class="tl-chip">
+            <span class="tl-label">HORIZON</span>
+            <span class="tl-val">2023 – 2028 (Graduation)</span>
+          </div>
+        </div>
+
+        <div class="coursework-section">
+          <h4 class="cw-title">Relevant Core Coursework</h4>
+          <div class="cw-grid">
+            {PORTFOLIO_DATA.education.coursework.map(course => (
+              <div class="cw-tag">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{course}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-section {
+    padding-top: clamp(4rem, 8vw, 7rem);
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+    border-top: 1px solid rgba(232, 213, 208, 0.4);
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    background: linear-gradient(118deg, rgba(245, 237, 242, .62), transparent 48%, rgba(249, 241, 232, .68));
+  }
+  .about-section::before {
+    content: ""; position: absolute; z-index: -1; width: min(62vw, 760px); aspect-ratio: 1; right: -18%; top: 8%; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(250,248,247,.12) 0 17%, transparent 17.2% 27%, rgba(170,139,164,.10) 27.2% 27.6%, transparent 27.8% 39%, rgba(197,143,125,.14) 39.2% 39.6%, transparent 39.8% 51%, rgba(170,139,164,.10) 51.2% 51.6%, transparent 51.8%), radial-gradient(circle at 56% 42%, rgba(255,255,255,.82), rgba(219,198,215,.22) 34%, transparent 68%);
+    transform: rotateX(64deg) rotateZ(-24deg); filter: blur(.2px); pointer-events: none; animation: academic-orbit 46s linear infinite;
+  }
+  @keyframes academic-orbit { to { transform: rotateX(64deg) rotateZ(336deg); } }
+  .about-stamp {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-rose-gold-text);
+    letter-spacing: 0.05em;
+  }
+  .about-heading {
+    font-size: var(--font-h1);
+    margin-bottom: 1rem;
+  }
+  .about-lead {
+    font-size: var(--font-lead);
+    color: var(--color-taupe-muted);
+    line-height: 1.6;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(1.75rem, 4vw, 3rem);
+    align-items: stretch;
+  }
+  .bio-card, .academics-card {
+    padding: clamp(1.75rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .bio-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    margin-bottom: 1.25rem;
+  }
+  .bio-p {
+    font-size: 0.95rem;
+    color: var(--color-ink-blackberry);
+    line-height: 1.7;
+    margin-bottom: 1.15rem;
+  }
+  .bio-p strong {
+    color: var(--color-plum-deep);
+  }
+  .interests-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-rose-gold-light);
+  }
+  .interest-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8125rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 253, 250, 0.8);
+    border: 1px solid var(--color-rose-gold-light);
+    border-radius: var(--radius-pill);
+    color: var(--color-plum-deep);
+  }
+  .interest-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-rose-gold);
+  }
+  .acad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-rose-gold-light);
+    margin-bottom: 1.5rem;
+  }
+  .acad-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-rose-gold-text);
+    letter-spacing: 0.06em;
+  }
+  .acad-degree {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    line-height: 1.25;
+    margin: 0.25rem 0;
+  }
+  .acad-inst {
+    font-size: 0.8125rem;
+    color: var(--color-taupe-muted);
+  }
+  .cgpa-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: var(--color-blush-subtle);
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-rose-gold);
+    flex-shrink: 0;
+    transform: perspective(480px) rotateY(-8deg) rotateX(4deg) translateZ(18px);
+    box-shadow: 8px 13px 25px rgba(59, 36, 59, .12), inset 1px 1px 0 rgba(255,255,255,.8);
+    transition: transform 550ms cubic-bezier(.2,.75,.25,1), box-shadow 550ms ease;
+  }
+  .academics-card:hover .cgpa-box, .academics-card:focus-within .cgpa-box { transform: perspective(480px) rotateY(-2deg) rotateX(0) translate3d(0,-5px,34px); box-shadow: 14px 20px 34px rgba(59,36,59,.16), inset 1px 1px 0 rgba(255,255,255,.9); }
+  .cgpa-val {
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    line-height: 1;
+  }
+  .cgpa-scale {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-rose-gold-text);
+  }
+  .timeline-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+  .tl-chip {
+    background: rgba(255, 253, 250, 0.7);
+    border: 1px solid var(--color-rose-gold-light);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+  }
+  .tl-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-taupe-muted);
+  }
+  .tl-val {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+  }
+  .coursework-section { margin-top: auto; }
+  .cw-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    margin-bottom: 0.75rem;
+  }
+  .cw-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .cw-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    background: rgba(244, 237, 228, 0.7);
+    border: 1px solid var(--color-rose-gold-light);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-blackberry);
+  }
+  .cw-tag svg {
+    color: var(--color-rose-gold-text);
+  }
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cgpa-box, .academics-card:hover .cgpa-box { transform: none; } .about-section::before { animation: none; } }
+</style>

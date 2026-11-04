@@ -1,0 +1,231 @@
+---
+// src/components/RecruiterDrawer.astro
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+---
+
+<!-- Slide-over Backdrop -->
+<div id="recruiter-backdrop" class="recruiter-drawer-backdrop" aria-hidden="true"></div>
+
+<!-- Slide-over Drawer -->
+<aside id="recruiter-drawer" class="recruiter-drawer" role="dialog" aria-modal="true" aria-labelledby="recruiter-sheet-title" aria-hidden="true">
+  <div class="drawer-header">
+    <div class="drawer-badge">
+      <span class="flash-icon">⚡</span>
+      <span>RECRUITER 15-SEC BRIEF</span>
+    </div>
+    <button type="button" class="drawer-close" data-close-recruiter aria-label="Close Recruiter Brief">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="drawer-content">
+    <!-- Candidate Overview -->
+    <div class="candidate-card">
+      <h2 id="recruiter-sheet-title" class="candidate-name">{PORTFOLIO_DATA.profile.fullName}</h2>
+      <p class="candidate-role">{PORTFOLIO_DATA.profile.headline}</p>
+      <div class="candidate-badge-row">
+        <span class="pill-badge">VIT-AP University</span>
+        <span class="pill-badge highlight">CGPA: {PORTFOLIO_DATA.profile.cgpa}</span>
+        <span class="pill-badge">Class of 2028</span>
+      </div>
+    </div>
+
+    <!-- Quick Highlights Matrix -->
+    <div class="quick-matrix">
+      <div class="matrix-item">
+        <span class="matrix-label">DEGREE PROGRAM</span>
+        <span class="matrix-val">{PORTFOLIO_DATA.education.degree} (2023–2028)</span>
+      </div>
+      <div class="matrix-item">
+        <span class="matrix-label">TARGET ROLES & AVAILABILITY</span>
+        <span class="matrix-val text-accent">Open to software engineering and applied AI/ML internships</span>
+      </div>
+      <div class="matrix-item">
+        <span class="matrix-label">ACTIVE RESEARCH PROTOTYPES</span>
+        <span class="matrix-val">
+          • <strong>TerraSeg AI:</strong> Landslide segmentation research prototype across Landslide4Sense and Bijie data; Gradio patch-inspection interface implemented, broader workflow consolidation in progress.<br/>
+          • <strong>AquaGuard AI:</strong> Multi-agent decision-support prototype (Google Gemini & ADK).
+        </span>
+      </div>
+      <div class="matrix-item">
+        <span class="matrix-label">TECHNICAL COMPETENCIES</span>
+        <span class="matrix-val">Python, PyTorch, U-Net, ResNet-34 encoder U-Net, Google ADK, Gemini API, Flask, MongoDB</span>
+      </div>
+      <div class="matrix-item">
+        <span class="matrix-label">CREDENTIALS</span>
+        <span class="matrix-val">Google Advanced Data Analytics, Google Data Analytics, Google BI, Vanderbilt Prompt Engineering</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="drawer-actions">
+      <a href={`${import.meta.env.BASE_URL}Sai_Sharmila_Kinjarapu_Resume.pdf`} download="Sai_Sharmila_Kinjarapu_Resume.pdf" class="btn-atelier-primary drawer-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Download Official Resume (PDF)</span>
+      </a>
+
+      <a href={`mailto:${PORTFOLIO_DATA.links.email}`} class="btn-atelier-secondary drawer-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+        </svg>
+        <span>Send Email ({PORTFOLIO_DATA.links.email})</span>
+      </a>
+    </div>
+
+    <!-- Profile links: -->
+    <div class="drawer-socials">
+      <span class="socials-label">PROFILE LINKS:</span>
+      <div class="social-links-grid">
+        <a href={PORTFOLIO_DATA.links.linkedin} target="_blank" rel="noopener noreferrer" class="social-chip">LinkedIn Profile ↗</a>
+        <a href={PORTFOLIO_DATA.links.github} target="_blank" rel="noopener noreferrer" class="social-chip">GitHub Repositories ↗</a>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-rose-gold-light);
+  }
+  .drawer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-plum-deep);
+    letter-spacing: 0.05em;
+  }
+  .flash-icon { color: var(--color-rose-gold-text); }
+  .drawer-close {
+    background: transparent;
+    border: none;
+    color: var(--color-taupe-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+  .drawer-close:hover {
+    color: var(--color-plum-deep);
+    background: var(--color-blush-subtle);
+  }
+  .candidate-card {
+    background: var(--color-surface-cream);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-rose-gold-light);
+    margin-bottom: 1.25rem;
+  }
+  .candidate-name {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--color-plum-deep);
+    margin-bottom: 0.25rem;
+  }
+  .candidate-role {
+    font-size: 0.8125rem;
+    color: var(--color-taupe-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+  .candidate-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .pill-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 253, 250, 0.8);
+    border: 1px solid var(--color-rose-gold-light);
+    color: var(--color-plum-deep);
+  }
+  .pill-badge.highlight {
+    background: var(--color-blush-subtle);
+    border-color: var(--color-rose-gold-text);
+    font-weight: 600;
+  }
+  .quick-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .matrix-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .matrix-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--color-rose-gold-text);
+  }
+  .matrix-val {
+    font-size: 0.85rem;
+    color: var(--color-ink-blackberry);
+    line-height: 1.45;
+  }
+  .matrix-val.text-accent {
+    color: var(--color-plum-deep);
+    font-weight: 600;
+  }
+  .drawer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .drawer-btn { width: 100%; }
+  .drawer-socials {
+    border-top: 1px solid var(--color-rose-gold-light);
+    padding-top: 1.15rem;
+    margin-top: auto;
+  }
+  .socials-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-taupe-muted);
+    margin-bottom: 0.65rem;
+  }
+  .social-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .social-chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-plum-deep);
+    text-decoration: none;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-cream);
+    border: 1px solid var(--color-rose-gold-light);
+    transition: all var(--transition-fast);
+  }
+  .social-chip:hover {
+    border-color: var(--color-rose-gold-text);
+    background: var(--color-blush-subtle);
+  }
+</style>

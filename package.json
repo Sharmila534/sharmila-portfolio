@@ -1,0 +1,22 @@
+{
+  "name": "sai-sharmila-atelier",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "The Digital Atelier — Personal Portfolio of Sai Sharmila Kinjarapu (Integrated M.Tech Software Engineering, VIT-AP '28)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.6.3"
+  },
+  "author": "Sai Sharmila Kinjarapu <sirix>",
+  "license": "MIT"
+}

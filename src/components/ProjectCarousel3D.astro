@@ -1,0 +1,519 @@
+---
+import type { ProjectData } from '../data/portfolioData';
+
+type CarouselProject = Pick<ProjectData, 'id' | 'title' | 'subtitle' | 'tags' | 'description' | 'results' | 'limitationsAndDisclaimers' | 'links'> & { category: string; status: string };
+interface Props { projects: CarouselProject[] }
+const { projects } = Astro.props;
+const artwork = (id: string) => {
+  if (id === 'terraseg-ai') return { src: `${import.meta.env.BASE_URL}images/atelier/terraseg-terrain.webp`, alt: 'Satellite terrain relief with topographic contours and segmentation overlay', className: 'art-terrain' };
+  if (id === 'aquaguard-ai') return { src: `${import.meta.env.BASE_URL}images/atelier/aquaguard-ecosystem.webp`, alt: 'Aquaculture water ecosystem with subtle analytical layers', className: 'art-water' };
+  if (id === 'hospital-management-system') return { src: '', alt: 'Abstract connected-care workflow structure', className: 'art-care' };
+  return { src: '', alt: 'Abstract branching decision-path structure', className: 'art-path' };
+};
+---
+
+<div class="project-carousel" data-project-carousel data-count={projects.length} aria-label="Featured projects">
+  <div class="carousel-atmosphere" aria-hidden="true">
+    <div class="atmosphere-orbit"></div>
+    <div class="atmosphere-core"></div>
+    {Array.from({ length: 34 }, (_, i) => (
+      <i class="atmosphere-particle" style={`--particle-index:${i}; --particle-x:${(i * 47 + 13) % 100}%; --particle-y:${(i * 31 + 9) % 100}%; --particle-size:${1 + (i % 3)}px; --particle-delay:${(i % 11) * -.7}s; --particle-duration:${12 + (i % 10)}s`}></i>
+    ))}
+  </div>
+
+  <div class="carousel-topline">
+    <span class="carousel-kicker"><i aria-hidden="true"></i> SELECTED WORK / 2024—26</span>
+    <span class="carousel-count" data-carousel-count aria-live="polite">01 <b>/</b> 0{projects.length}</span>
+  </div>
+
+  <div class="project-carousel-stage" data-carousel-stage tabindex="0" aria-label="Project carousel. Use left and right arrow keys to change project.">
+    <div class="project-track" data-carousel-track>
+      {projects.map((project, index) => {
+        const visual = artwork(project.id);
+        return (
+          <article class:list={['project-panel', visual.className]} data-carousel-index={index} data-project-id={project.id} role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${projects.length}: ${project.title}`}>
+            <div class="panel-artwork" aria-hidden="true">
+              {visual.src ? <img src={visual.src} alt="" width={project.id === 'terraseg-ai' ? 1536 : 1672} height={project.id === 'terraseg-ai' ? 1024 : 941} loading="lazy" decoding="async" /> : (
+                <svg viewBox="0 0 640 720" preserveAspectRatio="xMidYMid slice" focusable="false">
+                  <defs>
+                    <linearGradient id={`art-gradient-${index}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8dfdc"/><stop offset="1" stop-color="#b9a9bf"/></linearGradient>
+                    <radialGradient id={`art-light-${index}`}><stop stop-color="#fffaf1" stop-opacity=".9"/><stop offset="1" stop-color="#fffaf1" stop-opacity="0"/></radialGradient>
+                  </defs>
+                  <rect width="640" height="720" fill={`url(#art-gradient-${index})`} />
+                  <circle cx="420" cy="190" r="290" fill={`url(#art-light-${index})`} />
+                  {project.id === 'hospital-management-system' ? (
+                    <g fill="none" stroke="#68576f" stroke-opacity=".48">
+                      <path d="M80 150H270V270H440V170H570M100 360H260V500H470V390H590M270 270V360M440 270V390" stroke-width="2" />
+                      <path d="M95 135h155v70H95zM365 115h150v95H365zM150 315h150v90H150zM395 345h150v90H395zM225 470h185v90H225z" fill="#fffaf6" fill-opacity=".5" stroke-width="1.5" />
+                      <circle cx="270" cy="270" r="9" fill="#b0849c"/><circle cx="440" cy="390" r="9" fill="#b0849c"/><circle cx="270" cy="360" r="7" fill="#c58f7d"/>
+                      <path d="M121 170h92M121 185h58M390 150h92M390 166h63M177 350h92M177 368h61M420 380h92M420 397h60M250 505h115" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                  ) : (
+                    <g fill="none" stroke="#54435f" stroke-opacity=".62" stroke-width="2">
+                      <path d="M320 580V430M320 430L180 320M320 430L470 310M180 320L110 190M180 320L235 165M470 310L420 150M470 310L555 180M320 430V245M320 245L260 105M320 245L360 100" />
+                      <g fill="#f9f5f1" stroke="#a57f9b" stroke-width="3"><circle cx="320" cy="580" r="15"/><circle cx="320" cy="430" r="12"/><circle cx="180" cy="320" r="10"/><circle cx="470" cy="310" r="10"/><circle cx="320" cy="245" r="10"/><circle cx="110" cy="190" r="8"/><circle cx="235" cy="165" r="8"/><circle cx="420" cy="150" r="8"/><circle cx="555" cy="180" r="8"/><circle cx="260" cy="105" r="7"/><circle cx="360" cy="100" r="7"/></g>
+                    </g>
+                  )}
+                  <path d="M0 610C160 575 360 650 640 560V720H0Z" fill="#6d596f" fill-opacity=".11" />
+                </svg>
+              )}
+              <div class="artwork-grain"></div>
+              <span class="artwork-index">0{index + 1} <i>—</i> VISUAL STUDY</span>
+            </div>
+
+            <div class="panel-content">
+              <div class="panel-meta">
+                <span class="panel-category">{project.category}</span>
+                <span class:list={['panel-status', { 'status-live': project.status === 'In Active Development' }]}><i aria-hidden="true"></i>{project.status}</span>
+              </div>
+              <p class="panel-overline">PROJECT / 0{index + 1}</p>
+              <h3 class="panel-title">{project.title}</h3>
+              <p class="panel-subtitle">{project.subtitle}</p>
+              <p class="panel-description">{project.description}</p>
+              <div class="panel-tags" aria-label="Technologies and domain">
+                {project.tags.slice(0, 4).map(tag => <span>{tag}</span>)}
+              </div>
+              {project.results.length > 0 && (
+                <div class="panel-result"><span>REPORTED RESULT</span><strong>{project.results[0].value}</strong><small>{project.results[0].metric} · {project.results[0].datasetOrProtocol}</small></div>
+              )}
+              <p class="panel-scope"><b>Scope</b> {project.limitationsAndDisclaimers[0]}</p>
+              <div class="panel-actions">
+                <a class="panel-story-link" href={`${import.meta.env.BASE_URL}projects/${project.id}/`}>
+                  <span>Read the entire story</span><i aria-hidden="true">↗</i>
+                </a>
+                <div class="panel-resources" aria-label={`${project.title} resources`}>
+                  {project.links.filter(link => !link.isPlaceholder).slice(0, 2).map(resource => (
+                    <a href={resource.url} target={resource.isExternal ? '_blank' : undefined} rel={resource.isExternal ? 'noopener noreferrer' : undefined}>{resource.label}<span aria-hidden="true"> ↗</span></a>
+                  ))}
+                </div>
+              </div>
+              <span class="panel-watermark" aria-hidden="true">ATELIER</span>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+    <div class="carousel-horizon" aria-hidden="true"></div>
+  </div>
+
+  <div class="carousel-controls">
+    <div class="carousel-instruction"><span class="instruction-key">←</span><span class="instruction-key">→</span><span>Navigate selected work</span></div>
+    <div class="carousel-dots" role="group" aria-label="Choose a project">
+      {projects.map((project, index) => <button type="button" data-carousel-dot={index} aria-label={`Show ${project.title}`} aria-pressed={index === 0 ? 'true' : 'false'}><span></span></button>)}
+    </div>
+    <div class="carousel-arrows">
+      <button type="button" data-carousel-prev aria-label="Previous project"><span aria-hidden="true">←</span></button>
+      <button type="button" data-carousel-next aria-label="Next project"><span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+  <p class="carousel-announcement" data-carousel-announcement aria-live="polite" aria-atomic="true"></p>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-project-carousel]:not([data-carousel-ready])');
+  roots.forEach(root => {
+    const stage = root.querySelector<HTMLElement>('[data-carousel-stage]');
+    const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+    const count = Number(root.dataset.count || 0);
+    if (!stage || !track || count < 2) return;
+    const originals = [...track.querySelectorAll<HTMLElement>('[data-carousel-index]')];
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]')];
+    const countLabel = root.querySelector<HTMLElement>('[data-carousel-count]');
+    const announcement = root.querySelector<HTMLElement>('[data-carousel-announcement]');
+    let active = 0;
+    try {
+      const returnId = sessionStorage.getItem('atelier-story-return');
+      if (returnId) {
+        const returnIndex = originals.findIndex(panel => panel.dataset.projectId === returnId);
+        if (returnIndex >= 0) active = returnIndex;
+      }
+    } catch { /* The default first project remains available. */ }
+    let pointerX = 0;
+    let pointerY = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let wheelLocked = false;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const startCardStory = (event: MouseEvent, link: HTMLAnchorElement, panel: HTMLElement) => {
+      if (prefersReduced.matches || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const artwork = panel.querySelector<HTMLElement>('.panel-artwork');
+      if (!artwork) return;
+      event.preventDefault();
+      const rect = panel.getBoundingClientRect();
+      const artImage = artwork.querySelector<HTMLImageElement>('img');
+      const artSvg = artwork.querySelector<SVGElement>('svg');
+      const artSrc = artImage?.getAttribute('src') || (artSvg ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(artSvg))}` : '');
+      const projectId = panel.dataset.projectId || '';
+      const storyState = { projectId, activeIndex: Number(panel.dataset.carouselIndex || 0), artSrc, returnHash: '#projects' };
+      try { sessionStorage.setItem('atelier-story-transition', JSON.stringify(storyState)); } catch { /* Navigation remains available without storage. */ }
+      const overlay = document.createElement('div');
+      overlay.className = 'story-flight';
+      overlay.setAttribute('aria-hidden', 'true');
+      const flight = panel.cloneNode(true) as HTMLElement;
+      flight.className = 'story-flight-panel';
+      flight.removeAttribute('aria-hidden');
+      flight.querySelector('.panel-content')?.remove();
+      flight.querySelector('.artwork-index')?.remove();
+      const fragments = Array.from({ length: 5 }, (_, i) => `<i class="flight-fragment fragment-${i + 1}"></i>`).join('');
+      const particles = Array.from({ length: 28 }, (_, i) => `<i class="flight-particle" style="--i:${i};--delay:${(i % 7) * 24}ms"></i>`).join('');
+      const startX = rect.left, startY = rect.top, startW = rect.width, startH = rect.height;
+      Object.assign(flight.style, { left: `${startX}px`, top: `${startY}px`, width: `${startW}px`, height: `${startH}px`, transform: 'perspective(1500px) translateZ(0) rotateY(0deg)', transition: 'left 900ms cubic-bezier(.18,.8,.16,1), top 900ms cubic-bezier(.18,.8,.16,1), width 900ms cubic-bezier(.18,.8,.16,1), height 900ms cubic-bezier(.18,.8,.16,1), transform 900ms cubic-bezier(.18,.8,.16,1)' });
+      overlay.append(flight);
+      overlay.insertAdjacentHTML('beforeend', `${fragments}${particles}`);
+      const edgePoints = [
+        { x: rect.left + rect.width * .18, y: rect.top + 2, angle: -12 },
+        { x: rect.left + rect.width * .78, y: rect.top + 2, angle: 18 },
+        { x: rect.right - 2, y: rect.top + rect.height * .7, angle: 96 },
+        { x: rect.left + rect.width * .72, y: rect.bottom - 2, angle: 174 },
+        { x: rect.left + 2, y: rect.top + rect.height * .36, angle: -84 }
+      ];
+      overlay.querySelectorAll<HTMLElement>('.flight-fragment').forEach((fragment, i) => {
+        const point = edgePoints[i];
+        Object.assign(fragment.style, { left: `${point.x}px`, top: `${point.y}px`, rotate: `${point.angle}deg`, '--tx': `${(i % 2 ? 1 : -1) * (42 + i * 11)}px`, '--ty': `${-54 - i * 13}px` });
+      });
+      overlay.querySelectorAll<HTMLElement>('.flight-particle').forEach((particle, i) => {
+        const edge = edgePoints[i % edgePoints.length];
+        const t = Math.floor(i / edgePoints.length);
+        const spread = (t - 2) * 5;
+        Object.assign(particle.style, { left: `${edge.x + spread}px`, top: `${edge.y + spread}px`, '--tx': `${(i % 2 ? 1 : -1) * (24 + t * 15)}px`, '--ty': `${-32 - ((i * 19) % 96)}px` });
+      });
+      document.body.append(overlay);
+      document.documentElement.classList.add('story-flight-active');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        overlay.classList.add('is-expanding');
+        Object.assign(flight.style, { left: '0px', top: '0px', width: '100vw', height: '100vh', transform: 'perspective(1500px) translateZ(180px) rotateY(0deg)' });
+      }));
+      window.setTimeout(() => { window.location.assign(link.href); }, 920);
+    };
+
+    // Five visible slots make the orbit legible even though the data set has four projects.
+    const slotOffsets = [-2, -1, 0, 1, 2];
+    let panels: HTMLElement[] = [];
+    let navigationToken = 0;
+    const modulo = (n: number, m: number) => ((n % m) + m) % m;
+    const makePanel = (dataIndex: number, offset: number) => {
+      const panel = originals[dataIndex].cloneNode(true) as HTMLElement;
+      panel.dataset.carouselIndex = String(dataIndex);
+      panel.dataset.slotOffset = String(offset);
+      panel.classList.add('is-orbit-panel');
+      return panel;
+    };
+    const buildRing = () => {
+      const fragment = document.createDocumentFragment();
+      panels = slotOffsets.map(offset => {
+        const dataIndex = modulo(active + offset, count);
+        const panel = makePanel(dataIndex, offset);
+        fragment.append(panel);
+        return panel;
+      });
+      track.replaceChildren(fragment);
+    };
+    const layout = (announce = false) => {
+      panels.forEach(panel => {
+        const offset = Number(panel.dataset.slotOffset || 0);
+        const selected = offset === 0;
+        panel.classList.toggle('is-active', selected);
+        panel.classList.toggle('is-near', Math.abs(offset) === 1);
+        panel.classList.toggle('is-far', Math.abs(offset) === 2);
+        panel.style.setProperty('--arc-x', `${offset * (Math.abs(offset) >= 2 ? 43 : 62)}%`);
+        panel.style.setProperty('--arc-y', `${Math.abs(offset) === 1 ? 12 : Math.abs(offset) === 2 ? -3 : 0}px`);
+        panel.style.setProperty('--arc-rotation', `${offset * -1 * (Math.abs(offset) === 1 ? 23 : 35)}deg`);
+        panel.style.setProperty('--arc-z', `${selected ? 100 : Math.abs(offset) === 1 ? -105 : -245}px`);
+        panel.style.setProperty('--arc-scale', selected ? '1' : Math.abs(offset) === 1 ? '.83' : '.68');
+        panel.setAttribute('aria-hidden', String(!selected));
+        panel.querySelectorAll<HTMLElement>('a,button,[tabindex]').forEach(el => el.tabIndex = selected ? 0 : -1);
+        panel.querySelectorAll('a').forEach(link => link.setAttribute('draggable', 'false'));
+      });
+      dots.forEach((dot, index) => dot.setAttribute('aria-pressed', String(index === active)));
+      if (countLabel) countLabel.innerHTML = `${String(active + 1).padStart(2, '0')} <b>/</b> ${String(count).padStart(2, '0')}`;
+      if (announce && announcement) announcement.textContent = `Selected ${originals[active]?.querySelector('.panel-title')?.textContent?.trim() || 'project'}; ${active + 1} of ${count}.`;
+      root.dataset.activeIndex = String(active);
+    };
+    const stepRing = (direction: number, final = false) => {
+      active = modulo(active + direction, count);
+      const nextPanels: HTMLElement[] = [];
+      for (const panel of panels) {
+        const nextOffset = Number(panel.dataset.slotOffset || 0) - direction;
+        if (nextOffset < -2 || nextOffset > 2) { panel.remove(); continue; }
+        panel.dataset.slotOffset = String(nextOffset);
+        panel.dataset.carouselIndex = String(modulo(active + nextOffset, count));
+        nextPanels.push(panel);
+      }
+      const enteringOffset = direction > 0 ? 3 : -3;
+      const incoming = makePanel(modulo(active + enteringOffset, count), enteringOffset);
+      incoming.classList.add('is-entering');
+      incoming.style.setProperty('--arc-x', `${enteringOffset * 43}%`);
+      incoming.style.setProperty('--arc-y', '-8px');
+      incoming.style.setProperty('--arc-rotation', `${enteringOffset > 0 ? -42 : 42}deg`);
+      incoming.style.setProperty('--arc-z', '-355px');
+      incoming.style.setProperty('--arc-scale', '.54');
+      track.append(incoming);
+      nextPanels.push(incoming);
+      panels = nextPanels;
+      layout(final);
+      requestAnimationFrame(() => {
+        incoming.classList.remove('is-entering');
+        incoming.dataset.slotOffset = String(direction > 0 ? 2 : -2);
+        layout(final);
+      });
+    };
+    const select = (index: number, announce = true, directionHint = 0) => {
+      const next = modulo(index, count);
+      if (next === active) return;
+      const forwardDistance = modulo(next - active, count);
+      const direction = directionHint || (forwardDistance <= count / 2 ? 1 : -1);
+      const steps = directionHint ? (directionHint > 0 ? forwardDistance : modulo(active - next, count)) : Math.min(forwardDistance, count - forwardDistance);
+      const token = ++navigationToken;
+      root.setAttribute('aria-busy', 'true');
+      let step = 0;
+      const advance = () => {
+        if (token !== navigationToken) return;
+        step += 1;
+        stepRing(direction, announce && step === steps);
+        if (step < steps) window.setTimeout(advance, 300);
+        else root.removeAttribute('aria-busy');
+      };
+      advance();
+    };
+
+    root.dataset.carouselReady = 'true';
+    root.classList.add('is-ready');
+    buildRing();
+    layout();
+    try {
+      if (sessionStorage.getItem('atelier-story-return')) {
+        sessionStorage.removeItem('atelier-story-return');
+        const savedArt = sessionStorage.getItem('atelier-story-artwork') || '';
+        sessionStorage.removeItem('atelier-story-artwork');
+        window.setTimeout(() => {
+          const selected = track.querySelector<HTMLElement>('.is-active');
+          if (!selected) return;
+          selected.scrollIntoView({ block: 'center', behavior: prefersReduced.matches ? 'auto' : 'smooth' });
+          if (prefersReduced.matches) return;
+          window.setTimeout(() => {
+            const rect = selected.getBoundingClientRect();
+            const reverse = document.createElement('div'); reverse.className = 'story-return-flight'; reverse.setAttribute('aria-hidden','true');
+            if (savedArt.startsWith('data:image/svg+xml') || (savedArt.startsWith('/') && savedArt.includes('/images/atelier/'))) { const image = document.createElement('img'); image.src = savedArt; reverse.append(image); }
+            document.body.append(reverse);
+            reverse.animate([{ clipPath:'inset(0 0 0 0)', opacity:1 },{ clipPath:`inset(${rect.top}px ${innerWidth-rect.right}px ${innerHeight-rect.bottom}px ${rect.left}px round 3px)`, opacity:0 }],{duration:850,easing:'cubic-bezier(.2,.75,.18,1)',fill:'forwards'}).finished.finally(()=>reverse.remove());
+          }, 120);
+        }, 160);
+      }
+    } catch { /* The restored slide remains selected without the reversal overlay. */ }
+    root.querySelector('[data-carousel-prev]')?.addEventListener('click', () => select(active - 1));
+    root.querySelector('[data-carousel-next]')?.addEventListener('click', () => select(active + 1));
+    dots.forEach((dot, index) => dot.addEventListener('click', () => select(index)));
+
+    stage.addEventListener('click', event => {
+      const target = event.target as HTMLElement;
+      const panel = target.closest<HTMLElement>('[data-slot-offset]');
+      if (!panel) return;
+      const offset = Number(panel.dataset.slotOffset || 0);
+      const storyLink = target.closest<HTMLAnchorElement>('.panel-story-link');
+      if (offset === 0 && storyLink) { startCardStory(event, storyLink, panel); return; }
+      if (offset !== 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        select(modulo(active + offset, count), true, Math.sign(offset));
+      }
+    });
+    stage.addEventListener('keydown', event => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === 'ArrowRight') { event.preventDefault(); select(active + 1); }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); select(active - 1); }
+      if (event.key === 'Home') { event.preventDefault(); select(0); }
+      if (event.key === 'End') { event.preventDefault(); select(count - 1); }
+    });
+    stage.addEventListener('pointerdown', event => {
+      if (event.pointerType !== 'touch') return;
+      touchStartX = event.clientX;
+      touchStartY = event.clientY;
+    }, { passive: true });
+    stage.addEventListener('pointerup', event => {
+      if (event.pointerType !== 'touch') return;
+      const dx = event.clientX - touchStartX;
+      const dy = event.clientY - touchStartY;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.25) select(active + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+    stage.addEventListener('pointermove', event => {
+      if (prefersReduced.matches || event.pointerType !== 'mouse') return;
+      const bounds = stage.getBoundingClientRect();
+      pointerX = (event.clientX - bounds.left) / bounds.width - .5;
+      pointerY = (event.clientY - bounds.top) / bounds.height - .5;
+      stage.style.setProperty('--pointer-x', `${(pointerX * 4).toFixed(2)}px`);
+      stage.style.setProperty('--pointer-y', `${(pointerY * -3).toFixed(2)}px`);
+    }, { passive: true });
+    stage.addEventListener('pointerleave', () => {
+      stage.style.setProperty('--pointer-x', '0px');
+      stage.style.setProperty('--pointer-y', '0px');
+    }, { passive: true });
+    stage.addEventListener('wheel', event => {
+      if (prefersReduced.matches || wheelLocked || Math.abs(event.deltaX) < Math.abs(event.deltaY) * .65) return;
+      if (Math.abs(event.deltaX) < 32) return;
+      event.preventDefault();
+      wheelLocked = true;
+      select(active + (event.deltaX > 0 ? 1 : -1));
+      window.setTimeout(() => { wheelLocked = false; }, 760);
+    }, { passive: false });
+    prefersReduced.addEventListener?.('change', () => {
+      if (prefersReduced.matches) { stage.style.setProperty('--pointer-x', '0px'); stage.style.setProperty('--pointer-y', '0px'); }
+    });
+  });
+</script>
+
+<style>
+  .project-carousel {
+    --panel-width: min(69vw, 770px);
+    --ink: #211923;
+    --plum: #513a53;
+    position: relative;
+    isolation: isolate;
+    margin: clamp(2.5rem, 5vw, 4rem) calc((min(100vw - 3rem, 1450px) - min(100vw - 3rem, 1320px)) / -2) 0;
+    padding: 30px clamp(20px, 5vw, 72px) 22px;
+    overflow: hidden;
+    color: #f8f1eb;
+    border: 1px solid rgba(205,178,192,.18);
+    border-radius: 5px;
+    background:
+      radial-gradient(ellipse at 48% 42%, rgba(106,76,110,.42), transparent 40%),
+      radial-gradient(ellipse at 84% 60%, rgba(132,99,108,.13), transparent 35%),
+      linear-gradient(118deg, #201822 0%, #2a202e 52%, #17141d 100%);
+    box-shadow: 0 34px 80px -48px rgba(56,32,54,.48), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .project-carousel::before, .project-carousel::after { content:""; position:absolute; z-index:-1; pointer-events:none; }
+  .project-carousel::before { inset:0; opacity:.34; background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.014) 4px,transparent 5px); mix-blend-mode:screen; }
+  .project-carousel::after { width:64vw; height:64vw; right:-30vw; top:-36vw; border:1px solid rgba(220,195,194,.12); border-radius:50%; box-shadow:0 0 0 42px rgba(220,195,194,.022),0 0 0 88px rgba(220,195,194,.016),0 0 0 144px rgba(220,195,194,.012); }
+  .carousel-atmosphere { position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .atmosphere-orbit { position:absolute; left:50%; top:49%; width:min(68vw,780px); aspect-ratio:1; transform:translate(-50%,-50%) rotate(-20deg) scaleY(.34); border:1px solid rgba(220,189,182,.16); border-radius:50%; box-shadow:0 0 36px rgba(191,143,157,.07),inset 0 0 40px rgba(184,146,176,.05); }
+  .atmosphere-core { position:absolute; width:34vw; height:34vw; max-width:500px; max-height:500px; left:50%; top:49%; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle,rgba(190,148,162,.12),rgba(121,88,126,.05) 42%,transparent 72%); filter:blur(8px); }
+  .atmosphere-particle { position:absolute; left:var(--particle-x); top:var(--particle-y); width:var(--particle-size); height:var(--particle-size); border-radius:50%; opacity:.34; background:#d5b7b0; box-shadow:0 0 9px rgba(217,181,178,.45); animation:particle-drift var(--particle-duration) ease-in-out var(--particle-delay) infinite alternate; }
+  @keyframes particle-drift { 0%{transform:translate3d(0,0,0);opacity:.15} 55%{opacity:.54} 100%{transform:translate3d(12px,-25px,0);opacity:.28} }
+  .carousel-topline, .carousel-controls { position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; }
+  .carousel-topline { max-width:1200px; margin:0 auto; padding:0 12px; }
+  .carousel-kicker { display:flex; align-items:center; gap:10px; color:rgba(246,234,228,.76); font:9px/1.3 var(--font-mono,monospace); letter-spacing:.18em; }
+  .carousel-kicker i { width:6px; height:6px; border:1px solid #ca9c9e; border-radius:50%; box-shadow:0 0 12px rgba(202,156,158,.65); }
+  .carousel-count { color:#f7eee8; font:11px var(--font-mono,monospace); letter-spacing:.12em; }
+  .carousel-count b { padding:0 7px; color:rgba(244,228,222,.36); font-weight:400; }
+  .project-carousel-stage { position:relative; width:100%; max-width:1320px; height:clamp(550px, 53vw, 700px); margin:0 auto; perspective:1450px; perspective-origin:50% 45%; transform-style:preserve-3d; outline:none; touch-action:pan-y; }
+  .project-carousel-stage:focus-visible { outline:1px solid rgba(220,189,182,.6); outline-offset:-3px; }
+  .project-track { position:absolute; inset:0; transform-style:preserve-3d; }
+  .project-panel { position:absolute; left:50%; top:50%; width:var(--panel-width); min-height:470px; max-height:560px; display:grid; grid-template-columns:41% 59%; overflow:hidden; transform-style:preserve-3d; transform-origin:center center; border:1px solid rgba(255,248,242,.48); border-radius:3px; color:var(--ink); background:linear-gradient(133deg,#fffaf4 0%,#f5eee9 56%,#eee5e8 100%); box-shadow:0 28px 52px -24px rgba(4,2,7,.6),inset 0 1px 0 rgba(255,255,255,.9); will-change:transform; transition:transform 940ms cubic-bezier(.18,.82,.2,1),opacity 700ms ease,filter 700ms ease,box-shadow 700ms ease; backface-visibility:hidden; }
+  .project-panel.is-orbit-panel { left:50%; top:50%; z-index:2; transform:translate(-50%,-50%) translate3d(calc(var(--arc-x) + var(--pointer-x,0px)),calc(var(--arc-y) + var(--pointer-y,0px)),var(--arc-z)) rotateY(var(--arc-rotation)) scale(var(--arc-scale)); }
+  .project-panel.is-active { z-index:5; opacity:1; filter:none; box-shadow:0 40px 90px -35px rgba(4,2,7,.72),0 0 0 1px rgba(255,255,255,.13),inset 0 1px 0 rgba(255,255,255,.9); }
+  .project-panel.is-near { z-index:3; opacity:.86; filter:saturate(.72) brightness(.86); cursor:pointer; }
+  .project-panel.is-far { z-index:1; opacity:.55; filter:saturate(.55) brightness(.72); cursor:pointer; }
+  .project-panel.is-entering { transition:none!important; opacity:.3; }
+  .panel-artwork { position:relative; min-width:0; min-height:100%; overflow:hidden; isolation:isolate; background:#b5a5b5; }
+  .panel-artwork::after { content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(27,20,31,.04),rgba(30,22,34,.25)),linear-gradient(90deg,transparent 78%,rgba(31,24,36,.18)); mix-blend-mode:multiply; }
+  .panel-artwork img, .panel-artwork svg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .panel-artwork img { transform:scale(1.025); transition:transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .is-active .panel-artwork img { transform:scale(1.065); }
+  .artwork-grain { position:absolute; inset:0; z-index:2; pointer-events:none; opacity:.14; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.26'/%3E%3C/svg%3E"); mix-blend-mode:soft-light; }
+  .artwork-index { position:absolute; z-index:3; left:22px; bottom:21px; display:flex; gap:8px; color:#fff8f2; font:8px var(--font-mono,monospace); letter-spacing:.15em; text-shadow:0 1px 12px rgba(0,0,0,.45); }
+  .artwork-index i { color:rgba(255,255,255,.55); font-style:normal; }
+  .panel-content { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:clamp(24px,3.1vw,42px) clamp(24px,3vw,38px) 25px; overflow:hidden; }
+  .panel-meta { display:flex; width:100%; justify-content:space-between; align-items:center; gap:12px; padding-bottom:13px; border-bottom:1px solid rgba(88,62,84,.15); }
+  .panel-category, .panel-status { color:#776778; font:8px var(--font-mono,monospace); letter-spacing:.09em; text-transform:uppercase; }
+  .panel-status { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; letter-spacing:.01em; text-transform:none; }
+  .panel-status i { width:5px; height:5px; background:#bd9b91; border-radius:50%; }
+  .panel-status.status-live i { background:#7f8c76; box-shadow:0 0 8px rgba(127,140,118,.48); }
+  .panel-overline { margin:24px 0 8px; color:#9c7e8d; font:9px var(--font-mono,monospace); letter-spacing:.15em; }
+  .panel-title { max-width:100%; margin:0; color:#342638; font:500 clamp(27px,3.1vw,42px)/1.03 var(--font-serif,Georgia,serif); letter-spacing:-.035em; }
+  .panel-subtitle { margin:9px 0 0; color:#796879; font:italic 14px/1.45 var(--font-serif,Georgia,serif); }
+  .panel-description { display:-webkit-box; overflow:hidden; max-width:430px; margin:15px 0 14px; color:#665b67; font:12px/1.65 var(--font-sans,Arial,sans-serif); -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+  .panel-tags { display:flex; flex-wrap:wrap; gap:6px; max-height:49px; overflow:hidden; }
+  .panel-tags span { padding:5px 8px; border:1px solid rgba(123,93,121,.19); border-radius:2px; color:#65566b; background:rgba(255,255,255,.48); font:8px var(--font-mono,monospace); }
+  .panel-result { display:flex; flex-direction:column; gap:2px; width:100%; margin-top:13px; padding:10px 12px; border-left:2px solid #bc958b; background:rgba(225,211,211,.3); }
+  .panel-result span { color:#927b87; font:7px var(--font-mono,monospace); letter-spacing:.14em; }
+  .panel-result strong { color:#463548; font:500 17px var(--font-serif,Georgia,serif); }
+  .panel-result small { color:#847987; font:7px/1.45 var(--font-mono,monospace); }
+  .panel-scope { display:-webkit-box; max-width:100%; overflow:hidden; margin:12px 0 0; color:#817581; font:9px/1.5 var(--font-sans,Arial,sans-serif); -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+  .panel-scope b { color:#6f596f; font-weight:600; }
+  .panel-actions { display:flex; flex-wrap:wrap; align-items:center; gap:4px 17px; width:100%; margin-top:auto; padding-top:12px; }
+  .panel-story-link { display:inline-flex; align-items:center; gap:24px; color:#523e59; font:600 10px var(--font-mono,monospace); letter-spacing:.06em; text-decoration:none; text-transform:uppercase; }
+  .panel-story-link i { display:grid; width:28px; height:28px; place-items:center; border:1px solid rgba(115,81,109,.35); border-radius:50%; font:15px Arial,sans-serif; font-style:normal; transition:transform 240ms ease,background 240ms ease,color 240ms ease; }
+  .panel-story-link:hover i, .panel-story-link:focus-visible i { transform:translate(3px,-2px); color:white; background:#614967; }
+  .panel-resources { display:flex; flex-wrap:wrap; gap:6px 12px; }
+  .panel-resources a { color:#897a89; font:8px var(--font-mono,monospace); text-decoration:none; }
+  .panel-resources a:hover { color:#5a3f5b; text-decoration:underline; text-underline-offset:3px; }
+  .panel-story-link:focus-visible, .carousel-arrows button:focus-visible, .carousel-dots button:focus-visible { outline:2px solid #bd9b91; outline-offset:4px; }
+  .panel-watermark { position:absolute; right:22px; bottom:24px; color:rgba(91,68,96,.1); font:8px var(--font-mono,monospace); letter-spacing:.28em; }
+  .carousel-horizon { position:absolute; left:10%; right:10%; bottom:8%; height:19%; border-top:1px solid rgba(211,182,184,.12); transform:perspective(300px) rotateX(42deg); transform-origin:top center; pointer-events:none; opacity:.65; }
+  .carousel-controls { max-width:1200px; min-height:46px; margin:0 auto; padding:0 12px; }
+  .carousel-instruction { display:flex; align-items:center; gap:7px; color:rgba(247,235,229,.58); font:8px var(--font-mono,monospace); letter-spacing:.04em; }
+  .instruction-key { display:grid; width:19px; height:19px; place-items:center; border:1px solid rgba(235,215,212,.27); border-radius:2px; color:rgba(255,245,240,.8); }
+  .carousel-instruction span:last-child { padding-left:5px; }
+  .carousel-dots { display:flex; align-items:center; gap:7px; }
+  .carousel-dots button { display:grid; width:23px; height:26px; padding:0; place-items:center; border:0; background:transparent; cursor:pointer; }
+  .carousel-dots button span { width:5px; height:5px; border-radius:50%; background:rgba(244,226,223,.33); transition:width 300ms ease,border-radius 300ms ease,background 300ms ease; }
+  .carousel-dots button[aria-pressed="true"] span { width:20px; border-radius:4px; background:#c79fa0; }
+  .carousel-arrows { display:flex; gap:8px; }
+  .carousel-arrows button { display:grid; width:38px; height:38px; place-items:center; border:1px solid rgba(235,215,212,.27); border-radius:50%; color:#f3e8e3; background:rgba(255,255,255,.025); cursor:pointer; transition:color 220ms ease,background 220ms ease,border-color 220ms ease,transform 220ms ease; }
+  .carousel-arrows button:hover { transform:translateY(-2px); border-color:rgba(220,189,182,.65); color:#241c29; background:#d9c2bd; }
+  .carousel-arrows button span { font:17px Arial,sans-serif; }
+  .carousel-announcement { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .story-flight { position:fixed; z-index:20000; inset:0; overflow:hidden; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,#3b2a3e,#17131b 74%); animation:flight-backdrop 900ms ease-out both; }
+  .story-flight-panel { position:fixed!important; z-index:2!important; display:block!important; max-width:none!important; max-height:none!important; min-height:0!important; margin:0!important; overflow:hidden!important; border:1px solid rgba(226,197,153,.76)!important; border-radius:2px!important; transform-origin:center!important; box-shadow:0 30px 100px #08060bbf,0 0 38px #c19a6040!important; }
+  .story-flight-panel .panel-artwork { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; }
+  .story-flight-panel .panel-artwork img,.story-flight-panel .panel-artwork svg { width:100%!important;height:100%!important;object-fit:cover!important;transform:scale(1.04)!important; }
+  .flight-fragment { position:absolute; z-index:3; width:clamp(28px,6vw,82px); height:5px; opacity:0; background:linear-gradient(90deg,transparent,#c8aa72,#f2dfb6,transparent); box-shadow:0 0 15px #d7b97c66; transform-origin:left center; }
+  .fragment-1{left:12%;top:28%;rotate:-28deg}.fragment-2{left:69%;top:21%;rotate:32deg}.fragment-3{left:82%;top:66%;rotate:148deg}.fragment-4{left:24%;top:78%;rotate:-148deg}.fragment-5{left:48%;top:13%;rotate:8deg}
+  .flight-particle { position:absolute; z-index:4; width:1.5px;height:1.5px;border-radius:50%;opacity:0;background:#e0c58f;box-shadow:0 0 6px #e0c58f; }
+  .story-flight.is-expanding .flight-fragment { animation:fragment-shed 760ms cubic-bezier(.2,.7,.25,1) both; }
+  .story-flight.is-expanding .flight-particle { animation:fragment-particle 820ms cubic-bezier(.2,.65,.2,1) calc(var(--delay,0ms) + 100ms) both; }
+  @keyframes flight-backdrop { 0%{background-color:transparent} 100%{background-color:#17131b} }
+  @keyframes fragment-shed { 0%{opacity:0;scale:.5} 24%{opacity:.8;scale:1} 100%{opacity:0;translate:var(--tx,42px) var(--ty,-70px);scale:.65} }
+  @keyframes fragment-particle { 0%{opacity:0;translate:0 0} 22%{opacity:.9} 78%{opacity:.5} 100%{opacity:0;translate:var(--tx) var(--ty)} }
+  .project-carousel:not(.is-ready) .project-carousel-stage { height:auto; min-height:0; perspective:none; }
+  .project-carousel:not(.is-ready) .project-track { position:relative; display:grid; gap:18px; }
+  .project-carousel:not(.is-ready) .project-panel { position:relative; inset:auto; width:min(100%,850px); min-height:490px; max-height:none; margin:0 auto; transform:none; opacity:1; filter:none; }
+  .project-carousel:not(.is-ready) .carousel-controls { display:none; }
+  @media (max-width:900px) {
+    .project-carousel { --panel-width:min(75vw,670px); padding:24px 18px 18px; margin-left:-16px; margin-right:-16px; }
+    .project-carousel-stage { height:600px; perspective:1100px; }
+    .project-panel { min-height:440px; max-height:500px; grid-template-columns:39% 61%; }
+    .panel-content { padding:24px 23px 22px; }
+    .panel-title { font-size:clamp(26px,4vw,36px); }
+    .panel-description { font-size:11px; }
+  }
+  @media (max-width:600px) {
+    .project-carousel { --panel-width:min(78vw,360px); margin-left:-12px; margin-right:-12px; padding:20px 11px 13px; border-radius:3px; }
+    .carousel-topline { padding:0 6px; }
+    .carousel-kicker { gap:7px; font-size:7px; letter-spacing:.13em; }
+    .carousel-count { font-size:9px; }
+    .project-carousel-stage { height:590px; margin-top:3px; perspective:950px; }
+    .project-panel { min-height:500px; max-height:520px; display:flex; flex-direction:column; border-radius:3px; }
+    .project-panel.is-orbit-panel { transform:translate(-50%,-50%) translate3d(calc(var(--arc-x) + var(--pointer-x,0px)),calc(var(--arc-y) + var(--pointer-y,0px)),var(--arc-z)) rotateY(var(--arc-rotation)) scale(var(--arc-scale)); }
+    .panel-artwork { flex:0 0 37%; min-height:185px; max-height:200px; }
+    .panel-content { flex:1; min-height:0; padding:17px 17px 15px; }
+    .panel-meta { padding-bottom:9px; }
+    .panel-category, .panel-status { font-size:6px; }
+    .panel-overline { margin:14px 0 6px; font-size:8px; }
+    .panel-title { font-size:clamp(25px,7vw,34px); }
+    .panel-subtitle { margin-top:5px; font-size:12px; }
+    .panel-description { margin:9px 0 8px; font-size:10px; line-height:1.48; -webkit-line-clamp:2; }
+    .panel-tags { gap:4px; max-height:39px; }
+    .panel-tags span { padding:4px 5px; font-size:6px; }
+    .panel-result { margin-top:7px; padding:7px 9px; }
+    .panel-result strong { font-size:15px; }
+    .panel-scope { margin-top:7px; font-size:8px; -webkit-line-clamp:2; }
+    .panel-actions { gap:7px; padding-top:8px; }
+    .panel-story-link { gap:15px; font-size:8px; }
+    .panel-story-link i { width:24px; height:24px; }
+    .panel-resources { gap:6px 10px; }
+    .panel-resources a { font-size:7px; }
+    .panel-watermark { right:15px; bottom:19px; }
+    .artwork-index { left:14px; bottom:14px; font-size:7px; }
+    .carousel-controls { min-height:44px; padding:0 5px; }
+    .carousel-instruction { gap:4px; font-size:0; }
+    .instruction-key { width:18px; height:18px; font-size:9px; }
+    .carousel-dots { gap:2px; }
+    .carousel-dots button { width:19px; }
+    .carousel-arrows { gap:5px; }
+    .carousel-arrows button { width:33px; height:33px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .project-carousel *, .project-carousel *::before, .project-carousel *::after { scroll-behavior:auto!important; animation:none!important; transition-duration:.01ms!important; }
+    .atmosphere-particle { opacity:.24; }
+  }
+</style>

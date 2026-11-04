@@ -1,0 +1,291 @@
+---
+// src/pages/resume.astro
+import AtelierLayout from '../layouts/AtelierLayout.astro';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+---
+
+<AtelierLayout title={`Resume | ${PORTFOLIO_DATA.profile.fullName}`}>
+  <div class="resume-page-container atelier-container">
+    <div class="resume-toolbar no-print">
+      <a href={import.meta.env.BASE_URL} class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Return to Portfolio</span>
+      </a>
+
+      <div class="print-actions">
+        <button type="button" class="btn-atelier-primary" onclick="window.print()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span>Print / Save as PDF</span>
+        </button>
+
+        <a href={`${import.meta.env.BASE_URL}Sai_Sharmila_Kinjarapu_Resume.pdf`} download="Sai_Sharmila_Kinjarapu_Resume.pdf" class="btn-atelier-secondary">
+          <span>Download Master File</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Official High-Fidelity Resume Document -->
+    <article class="resume-sheet">
+      <header class="sheet-header">
+        <h1 class="sheet-name">{PORTFOLIO_DATA.profile.fullName}</h1>
+        <div class="sheet-headline">{PORTFOLIO_DATA.profile.headline}</div>
+        <div class="sheet-contact-line">
+          <span>Amaravati, Andhra Pradesh, India</span>
+          <span>•</span>
+          <a href={`mailto:${PORTFOLIO_DATA.links.email}`}>{PORTFOLIO_DATA.links.email}</a>
+          <span>•</span>
+          <a href={PORTFOLIO_DATA.links.linkedin}>LinkedIn</a>
+          <span>•</span>
+          <a href={PORTFOLIO_DATA.links.github}>GitHub</a>
+        </div>
+      </header>
+
+      <!-- Summary -->
+      <section class="sheet-section">
+        <h2 class="sec-title">SUMMARY</h2>
+        <p class="sec-p">
+          Integrated M.Tech Software Engineering student at VIT-AP (expected 2028; CGPA {PORTFOLIO_DATA.profile.cgpa}) with foundations in software engineering, applied AI & machine learning, computer vision, data analytics, and Python. Active research prototype development across TerraSeg AI (satellite landslide segmentation) and AquaGuard AI (Gemini multi-agent decision support).
+        </p>
+      </section>
+
+      <!-- Education -->
+      <section class="sheet-section">
+        <h2 class="sec-title">EDUCATION</h2>
+        <div class="entry">
+          <div class="entry-row">
+            <strong>VIT-AP University</strong>
+            <span>2023 – 2028</span>
+          </div>
+          <div class="entry-sub">Integrated Master of Technology (M.Tech) in Software Engineering</div>
+          <p class="entry-details">
+            <strong>CGPA: {PORTFOLIO_DATA.profile.cgpa}</strong> | Relevant Coursework: Operating Systems, Database Management Systems, Computer Networks, Machine Learning, Data Science & Analytics, Data Structures & Algorithms, Object-Oriented Analysis & Design.
+          </p>
+        </div>
+      </section>
+
+      <!-- Technical Skills -->
+      <section class="sheet-section">
+        <h2 class="sec-title">TECHNICAL SKILLS</h2>
+        <div class="skills-sheet-table">
+          <p><strong>Programming:</strong> Python, Java, JavaScript, HTML/CSS</p>
+          <p><strong>Machine Learning & Computer Vision:</strong> PyTorch, Custom CNN, U-Net, ResNet34 U-Net, YOLO11-seg, segmentation metrics, Grad-CAM</p>
+          <p><strong>Applied Generative AI:</strong> Google ADK, Gemini API, multi-agent workflow prototype</p>
+          <p><strong>Tools & Technologies:</strong> Astro, Flask, MongoDB, HTML/CSS, JavaScript</p>
+        </div>
+      </section>
+
+      <!-- Research & Projects -->
+      <section class="sheet-section">
+        <h2 class="sec-title">RESEARCH & PROJECTS</h2>
+        
+        <!-- TerraSeg AI -->
+        <div class="entry">
+          <div class="entry-row">
+            <strong>TerraSeg AI | Multi-Dataset Satellite Landslide Segmentation Research Prototype</strong>
+            <span class="status-tag">In Active Development</span>
+          </div>
+          <ul class="entry-list">
+            <li>Implemented experimental segmentation workflows across 3,799 Landslide4Sense 14-channel patches (12 optical bands, slope and DEM) and 770 Bijie landslide image-mask pairs; handled preprocessing, channel normalisation, data splits and model evaluation.</li>
+            <li>Compared Custom CNN, U-Net / ResNet34 U-Net, YOLO11-seg and Random Forest; tested BCE/Dice and Focal/Dice losses, augmentation, SCSE/C2PSA attention and alternative channel combinations.</li>
+            <li>Three-seed test means: 0.6079 IoU / 0.7562 F1 for the All14 U-Net setup on Landslide4Sense; 0.7913 IoU / 0.8835 F1 for ResNet34 U-Net on the selected Bijie landslide subset.</li>
+            <li>Implemented Grad-CAM, channel-permutation analysis, candidate-region extraction and a Gradio patch-inspection interface. Consolidation of the broader research workflow into a reproducible interactive prototype remains in progress.</li>
+            <li>Evaluation caveat: the reported Bijie subset contains landslide-positive samples only; results do not establish false-alarm performance on non-landslide imagery, operational readiness or geospatial accuracy.</li>
+          </ul>
+        </div>
+
+        <!-- AquaGuard AI -->
+        <div class="entry">
+          <div class="entry-row">
+            <strong>AquaGuard AI | Gemini Multi-Agent Decision-Support Prototype</strong>
+            <span class="status-tag">In Active Development</span>
+          </div>
+          <ul class="entry-list">
+            <li>Built a Google ADK and Gemini multi-agent prototype that reasons over supplied/demo inputs.</li>
+            <li>Routes prompt context through water, weather, and market specialist agents before root-agent synthesis.</li>
+            <li>Uses supplied/demo prompt information only; no live sensors, weather or market feeds, deployed database, or production system are claimed.</li>
+            <li>Project links are available on the AquaGuard case study page.</li>
+          </ul>
+        </div>
+
+        <!-- HMS -->
+        <div class="entry">
+          <div class="entry-row">
+            <strong>Hospital Management System (HMS) | LLM Prompting & Learning Prototype</strong>
+            <span>Learning Prototype</span>
+          </div>
+          <ul class="entry-list">
+            <li>Developed full-stack clinic management prototype with Flask, MongoDB, and HTML/CSS using Git-based workflows.</li>
+            <li>Used ChatGPT as an engineering learning aid to iteratively explore prompt design, context conditioning, and model instruction adherence.</li>
+          </ul>
+        </div>
+
+        <!-- AI Planning & Search -->
+        <div class="entry">
+          <div class="entry-row">
+            <strong>AI Planning & Search | Classical Artificial Intelligence Coursework</strong>
+            <span>Coursework</span>
+          </div>
+          <ul class="entry-list">
+            <li>Implemented state-space heuristic search algorithms (BFS, A* search with admissible heuristics, Minimax adversarial trees) and PDDL domain modeling.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Certifications -->
+      <section class="sheet-section">
+        <h2 class="sec-title">CERTIFICATIONS</h2>
+        <p class="entry-details">
+          Google Data Analytics; Google Advanced Data Analytics; Google Business Intelligence; Prompt Engineering for ChatGPT; NVIDIA Prompt Engineering and Data Analysis (Coursera).
+        </p>
+      </section>
+    </article>
+  </div>
+</AtelierLayout>
+
+<style>
+  .resume-page-container {
+    padding-top: 6.5rem;
+    padding-bottom: 5rem;
+  }
+  .resume-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-plum-deep);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .back-link:hover { color: var(--color-rose-gold-text); }
+  .print-actions { display: flex; gap: 0.75rem; }
+  .resume-sheet {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    padding: 3.5rem 3rem;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E5E5E5;
+    font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+    line-height: 1.5;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .sheet-header {
+    text-align: center;
+    border-bottom: 2px solid #2A1625;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .sheet-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #2A1625;
+    margin-bottom: 0.25rem;
+  }
+  .sheet-headline {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #555555;
+    margin-bottom: 0.5rem;
+  }
+  .sheet-contact-line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: #555555;
+  }
+  .sheet-contact-line a {
+    color: #2A1625;
+    text-decoration: none;
+  }
+  .sheet-contact-line a:hover { text-decoration: underline; }
+  .sheet-section {
+    margin-bottom: 1.5rem;
+  }
+  .sec-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #2A1625;
+    border-bottom: 1px solid #D1D1D1;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .sec-p {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: #333333;
+  }
+  .entry { margin-bottom: 1rem; }
+  .entry-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.9rem;
+    color: #2A1625;
+  }
+  .status-tag {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: #884455;
+  }
+  .entry-sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555555;
+    margin-bottom: 0.25rem;
+  }
+  .entry-details {
+    font-size: 0.85rem;
+    color: #333333;
+    line-height: 1.5;
+  }
+  .entry-list {
+    list-style: disc;
+    padding-left: 1.25rem;
+    font-size: 0.85rem;
+    color: #333333;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+  .skills-sheet-table p {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    color: #333333;
+  }
+
+  @media print {
+    body { background: #FFFFFF !important; }
+    .no-print, header, footer, .atelier-grain, .btn-recruiter-pill { display: none !important; }
+    .resume-page-container { padding: 0 !important; }
+    .resume-sheet {
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+  }
+</style>

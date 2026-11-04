@@ -1,0 +1,39 @@
+---
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+import ProjectCarousel3D from './ProjectCarousel3D.astro';
+---
+
+<section id="projects" class="projects-section" data-section-motion="gallery" aria-labelledby="projects-title">
+  <div class="atelier-container">
+    <header class="room-header reveal-on-scroll">
+      <div class="room-meta">
+        <span class="atelier-badge">RESEARCH & PROTOTYPES</span>
+        <span class="projects-stamp">PROJECTS & REPORTED RESULTS</span>
+      </div>
+      <h2 id="projects-title" class="editorial-title projects-heading">
+        Engineered Systems & <span class="editorial-italic">Experimental Case Studies.</span>
+      </h2>
+      <p class="projects-lead">
+        Explore active research prototypes, multi-agent architectures, learning implementations, and foundational coursework. Each story presents documented methods, reported results where available, and explicit prototype boundaries.
+      </p>
+    </header>
+    <ProjectCarousel3D projects={PORTFOLIO_DATA.projects} />
+  </div>
+</section>
+
+<style>
+  .projects-section {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding: clamp(4rem, 8vw, 7rem) 0;
+    border-top: 1px solid rgba(232, 213, 208, .48);
+    background:
+      radial-gradient(ellipse at 7% 13%, rgba(229,215,227,.38), transparent 36%),
+      radial-gradient(ellipse at 95% 86%, rgba(241,222,211,.42), transparent 34%);
+  }
+  .room-header { position: relative; z-index: 2; }
+  .projects-stamp { font: .7rem var(--font-mono, monospace); color: var(--color-rose-gold-text); letter-spacing: .08em; }
+  .projects-heading { max-width: 970px; margin: 0 0 1rem; font-size: var(--font-h1); }
+  .projects-lead { max-width: 770px; margin: 0; color: var(--color-taupe-muted); font-size: var(--font-lead); line-height: 1.7; }
+</style>

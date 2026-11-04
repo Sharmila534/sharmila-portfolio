@@ -1,0 +1,458 @@
+---
+import AtelierLayout from '../layouts/AtelierLayout.astro';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
+
+const { id } = Astro.props;
+const projects = PORTFOLIO_DATA.projects;
+const projectIndex = projects.findIndex((item) => item.id === id);
+const project = projects[projectIndex];
+if (!project) throw new Error(`Unknown project: ${id}`);
+const previous = projects[(projectIndex + projects.length - 1) % projects.length];
+const next = projects[(projectIndex + 1) % projects.length];
+const root = import.meta.env.BASE_URL;
+const visual = project.id === 'terraseg-ai' ? 'terrain'
+  : project.id === 'aquaguard-ai' ? 'water'
+  : project.id === 'hospital-management-system' ? 'care' : 'pathways';
+const transitionStyle = (targetId: string) => targetId === 'terraseg-ai' ? 'fracture'
+  : targetId === 'aquaguard-ai' ? 'fluid'
+  : targetId === 'hospital-management-system' ? 'network' : 'typographic';
+const chapterTransition = (number: string) => {
+  if (visual === 'terrain') return number === '01' || number === '06' ? 'typographic' : number === '07' ? 'gold-dust' : 'fracture';
+  if (visual === 'water') return ['01', '04', '05', '07'].includes(number) ? 'fluid' : number === '02' || number === '08' ? 'typographic' : 'network';
+  if (visual === 'care') return number === '01' || number === '06' ? 'typographic' : 'network';
+  return number === '01' || number === '06' ? 'typographic' : 'pathways';
+};
+const chapters = project.id === 'terraseg-ai'
+  ? [
+      ['01', 'The problem', 'Landslides leave patterns across satellite imagery and terrain. The research asks how segmentation models can identify those regions in image patches, and how predictions can be inspected rather than accepted as a black box.', 'The work is framed as a comparative research prototype, not an operational warning system.'],
+      ['02', 'Question & objectives', 'The notebooks examine multispectral versus RGB inputs, the contribution of terrain channels, and how model choices change segmentation quality.', 'Objectives visible in the supplied experiments: compare model families and channel variants; evaluate with IoU and F1; inspect predictions and channel sensitivity.'],
+      ['03', 'Datasets & preparation', 'Landslide4Sense: 3,799 patches at 128 × 128 pixels, split 2,659 / 569 / 571 for train / validation / test; each patch has 14 channels (12 optical bands, slope and DEM). Bijie: 770 paired RGB images and masks, split 539 / 115 / 116.', 'The reported Bijie subset uses landslide-positive images only. It is a separate experiment from Landslide4Sense.'],
+      ['04', 'Models & experiments', 'The supplied notebooks compare Custom CNN, U-Net variants including ResNet34 U-Net, Random Forest and YOLO11-seg experiments. Landslide4Sense includes an All14 U-Net three-seed study; the Bijie track has its own ResNet34 U-Net runs.', 'Different datasets and evaluation protocols are kept separate; these results do not form a single leaderboard.'],
+      ['05', 'Evaluation', 'For Landslide4Sense, the three-seed All14 U-Net test summary reports mean IoU 0.6079 and F1 0.7562. The separate Bijie ResNet34 U-Net three-seed mean reports IoU 0.7913 and F1 0.8835.', 'These are notebook-reported measurements on their stated splits. The positive-only Bijie subset cannot measure false alarms on non-landslide imagery.'],
+      ['06', 'Explainability & inspection', 'Saved outputs include Grad-CAM visualisations, channel-permutation analysis, connected-component candidate extraction, JSON results and a Gradio patch-inspection interface.', 'The supplied notebooks demonstrate patch inspection. Consolidating the broader research workflow into a reproducible interactive interface remains in progress.'],
+      ['07', 'Limitations & next research', 'The selected Bijie evaluation contains no negative images. Its false-alarm performance is unknown. DEM inputs are 8-bit values, and geographic alignment, calibrated area and map-accurate polygons have not been verified.', 'Possible next research: evaluate on mixed positive/negative data and validate geospatial alignment and area calculations. These are future steps, not completed work.']
+    ]
+  : project.id === 'aquaguard-ai'
+  ? [
+      ['01', 'The aquaculture problem', 'Farm decisions can depend on water quality, weather and market conditions at once. AquaGuard explores whether a multi-agent workflow can organise those signals into a clearer decision-support conversation.', 'Built as a small prototype during the Gen AI Impact Edition hackathon.'],
+      ['02', 'Concept & objective', 'The idea is to let specialist agents contribute focused context, then make the coordinator explain a combined assessment with evidence, suggested next steps and uncertainty.', 'The objective is a prototype decision-support experience; no measured farm outcome or advisory accuracy is claimed.'],
+      ['03', 'Multi-agent architecture', 'Three specialists handle water quality, weather risk and market intelligence. A root coordinator combines their perspectives and supports follow-up questions.', 'Four agents total: three specialist agents plus the Gemini-powered root agent.'],
+      ['04', 'Water-quality specialist', 'The agent reasons about dissolved oxygen, temperature, pH and salinity within the farm context supplied to the prototype.', 'The demonstration uses simulated farm context, not readings from connected sensors.'],
+      ['05', 'Weather & market specialists', 'The weather specialist evaluates environmental conditions, while the market specialist contributes price and trend context to the coordinated assessment.', 'No live weather service or market-data feed is claimed.'],
+      ['06', 'Coordinator & workflow', 'A farmer can view farm context, run a multi-agent assessment, and ask follow-up questions. The root agent returns a risk assessment, evidence, recommended next steps and uncertainty.', 'The public project description documents Gemini, Firebase Authentication and Cloud Firestore for user-scoped farm data, assessments and conversations.'],
+      ['07', 'Prototype demonstration', 'The walkthrough shows the intended interaction through a small prototype. Inputs shown are simulated; no live IoT sensor integration is present.', 'Open the walkthrough link below to review the interface demonstration.'],
+      ['08', 'Boundaries & future possibilities', 'This is a hackathon-scale prototype, not a deployed platform. Live sensing and external weather/market integrations are not claimed.', 'Possible future work would require real integrations and validation with domain experts; these are not represented as completed features.']
+    ]
+  : project.id === 'hospital-management-system'
+  ? [
+      ['01', 'Problem & motivation', 'The learning project explores how common administrative tasks can be represented as connected software workflows while learning full-stack structure and data handling.'],
+      ['02', 'System overview', 'The documented scope includes patient records, doctor records, appointment scheduling and basic admission workflows.'],
+      ['03', 'Architecture & technology', 'The project description identifies a Python Flask backend, MongoDB document storage and an HTML/CSS/JavaScript interface.'],
+      ['04', 'Modules & user workflows', 'The supplied details cover patient intake and records, doctor records, appointment scheduling and admission workflow scaffolding.'],
+      ['05', 'Implementation & engineering aid', 'Modular Flask routes connect the documented workflows to MongoDB. LLM prompting was explored as an iterative aid for understanding constraints and code generation.'],
+      ['06', 'Challenges & learning scope', 'The project was used to explore backend organisation, database consistency, and how explicit constraints affect LLM-assisted code generation.'],
+      ['07', 'Limitations', 'This is an academic learning prototype, not a clinical product. No compliance certification, production deployment or clinical use is claimed.']
+    ]
+  : [
+      ['01', 'Problem definition', 'The coursework turns small planning and game problems into explicit states, actions and goals.'],
+      ['02', 'State-space representation', 'The supplied assignment covers the 8-puzzle, water-jug problem and Tic-Tac-Toe as separate problem domains.'],
+      ['03', 'Search strategies', 'A* is used for 8-puzzle search, breadth-first search for the water-jug problem, and Minimax for Tic-Tac-Toe.'],
+      ['04', 'Planning & implementation', 'Additional coursework includes goal-stack planning and PDDL examples. The repository contains separate Python exercises rather than one production system.'],
+      ['05', 'Execution & visualisation', 'The case-study diagram is an explanatory view of branching search states, not a measured run or a result copied from the assignment.'],
+      ['06', 'Results, learning & scope', 'The supplied project information does not provide benchmark results. The work is presented as academic coursework, with no performance-superiority or production claim.']
+    ];
+---
+
+<AtelierLayout title={`${project.title} | Sai Sharmila Kinjarapu`} description={project.tagline}>
+  <div class={`experience experience--${visual}`} data-experience={visual}>
+    <div class="experience-progress" aria-hidden="true"><span></span></div>
+    <div class="transition-curtain" data-transition-curtain aria-hidden="true"><span class="curtain-word">NEXT CHAPTER</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <a class="skip-story-transition" href="#story">Skip project entrance</a>
+    <nav class="experience-nav" aria-label="Project navigation">
+      <a class="wordmark" href={`${root}#projects`} data-transition-kind="typographic"><span class="wordmark-mark">S.</span><span>THE DIGITAL ATELIER</span></a>
+      <a class="return-link" href={`${root}#projects`} data-story-return={project.id} data-transition-kind="typographic"><span aria-hidden="true">←</span> Portfolio</a>
+    </nav>
+
+    <header class="experience-hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span>{project.category} <span class="eyebrow-divider">/</span> {project.status}</p>
+        <h1>{project.title}</h1>
+        <p class="hero-deck">{project.tagline}</p>
+        <div class="hero-actions">
+          <a class="story-link" href="#story">Explore the story <span aria-hidden="true">↓</span></a>
+          {project.links.filter((link) => !link.isPlaceholder).slice(0, 1).map((link) => (
+            <a class="repository-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.label} <span aria-hidden="true">↗</span></a>
+          ))}
+        </div>
+        <div class="hero-tags" aria-label="Project technologies">{project.tags.map((tag) => <span>{tag}</span>)}</div>
+      </div>
+
+      <div class="visual-stage" aria-label={`${project.title} visual overview`}>
+        {visual === 'terrain' && <div class="terrain-art" aria-hidden="true">
+          <div class="terrain-sun"></div><div class="terrain-ridge ridge-one"></div><div class="terrain-ridge ridge-two"></div><div class="terrain-ridge ridge-three"></div>
+          <div class="terrain-contours"></div><div class="terrain-mask"></div><div class="scan-line"></div>
+          <span class="annotation annotation-a">SLOPE / 14CH</span><span class="annotation annotation-b">SEGMENT FIELD</span><span class="coordinate coordinate-a">TERRAIN INPUTS<br/>DEM + SLOPE</span>
+          <div class="terrain-caption"><span>CONCEPTUAL TERRAIN ART</span><span>LANDSLIDE SEGMENTATION</span></div>
+        </div>}
+        {visual === 'water' && <div class="water-art">
+          <div class="water-orb orb-a"></div><div class="water-orb orb-b"></div><div class="water-ripple ripple-a"></div><div class="water-ripple ripple-b"></div>
+          <svg class="agent-lines" viewBox="0 0 600 440" aria-hidden="true"><path d="M300 218L150 118M300 218L450 118M300 218L300 345"/><circle cx="300" cy="218" r="4"/><circle cx="150" cy="118" r="3"/><circle cx="450" cy="118" r="3"/><circle cx="300" cy="345" r="3"/></svg>
+          <button type="button" class="agent-node node-core" data-agent="root" aria-pressed="true"><span>ROOT AGENT</span><b>AG</b></button><button type="button" class="agent-node node-water" data-agent="water" aria-pressed="false">WATER</button><button type="button" class="agent-node node-weather" data-agent="weather" aria-pressed="false">WEATHER</button><button type="button" class="agent-node node-market" data-agent="market" aria-pressed="false">MARKET</button>
+          <div class="water-caption"><span>CONCEPTUAL AGENT MAP</span><span>3 SPECIALISTS + 1 ROOT</span></div>
+        </div>}{visual === 'water' && <p class="agent-detail" aria-live="polite">Root agent · combines specialist perspectives into a risk assessment, evidence, next steps and uncertainty.</p>}
+        {visual === 'care' && <div class="care-art">
+          <div class="care-grid"></div><div class="care-rail rail-a"></div><div class="care-rail rail-b"></div>
+          <button type="button" class="care-panel panel-patient" data-care-step="patient" aria-pressed="true"><i>01 / RECORD</i><b>Patient</b><span>Patient record workflow</span><em>Documented scope</em></button>
+          <button type="button" class="care-panel panel-appointment" data-care-step="doctor" aria-pressed="false"><i>02 / SCHEDULE</i><b>Doctor</b><span>Doctor records & appointments</span><em>Documented scope</em></button>
+          <button type="button" class="care-panel panel-admission" data-care-step="admission" aria-pressed="false"><i>03 / ADMISSION</i><b>Admission</b><span>Basic admission workflow</span><em>Learning prototype</em></button>
+          <div class="care-hub" aria-hidden="true"><span>CARE</span><b>+</b></div><div class="care-caption">DOCUMENTED ADMINISTRATIVE WORKFLOWS</div>
+          <p class="care-detail" aria-live="polite">Patient records · part of the documented learning-prototype scope.</p>
+        </div>}
+        {visual === 'pathways' && <div class="path-art" data-active-algorithm="astar" aria-hidden="true">
+          <svg class="path-network" viewBox="0 0 700 500"><g class="path-faint"><path d="M80 250L205 120 345 210 490 95 620 170M80 250L205 380 345 290 490 405 620 330M205 120L205 380M345 210L345 290M490 95L490 405M80 250L345 210L620 330M80 250L345 290L620 170"/></g><g class="path-lit"><path class="route-astar" d="M80 250L205 120 345 210 490 95 620 170"/><path class="route-bfs" d="M80 250L205 380 345 290 490 405 620 330"/><path class="route-minimax" d="M80 250L345 210L620 330"/><path class="route-pddl" d="M80 250L345 290L620 170"/></g>{[[80,250],[205,120],[205,380],[345,210],[345,290],[490,95],[490,405],[620,170],[620,330]].map(([x,y],i)=><circle class={`path-node n${i}`} cx={x} cy={y} r={i===0||i===8?8:5}/>)}</svg>
+          <div class="path-label label-start">INITIAL STATE</div><div class="path-label label-goal">GOAL STATE</div><div class="path-equation">f(n) = g(n) + h(n)</div><div class="path-caption">ILLUSTRATIVE SEARCH SPACE · NOT A RECORDED RUN</div>
+        </div>}
+        {visual === 'pathways' && <div class="algorithm-controls" role="group" aria-label="Explore documented coursework domains">
+          <button type="button" data-algorithm="astar" aria-pressed="true">A* / 8-puzzle</button><button type="button" data-algorithm="bfs" aria-pressed="false">BFS / water jug</button><button type="button" data-algorithm="minimax" aria-pressed="false">Minimax / Tic-Tac-Toe</button><button type="button" data-algorithm="pddl" aria-pressed="false">PDDL</button>
+          <span data-algorithm-detail aria-live="polite">A* search · 8-puzzle coursework</span>
+        </div>}
+        <span class="stage-index">0{projectIndex + 1} <i>/</i> 04</span>
+      </div>
+      <div class="hero-bottom"><span>SCROLL TO EXPLORE</span><span class="scroll-line"></span><span>{chapters.length} CHAPTERS</span></div>
+    </header>
+
+    <section id="story" class="story-intro reveal" aria-labelledby="story-heading">
+      <div><p class="eyebrow">A PROJECT DOCUMENTARY</p><h2 id="story-heading">The work, in context.</h2></div>
+      <p>{project.description}</p>
+    </section>
+
+    <div class="chapter-layout">
+      <aside class="chapter-rail" aria-label="Story chapters"><span class="rail-label">CHAPTERS</span>{chapters.map(([number, title])=><a href={`#chapter-${number}`}><i>{number}</i>{title}</a>)}</aside>
+      <div class="chapters">
+        {chapters.map(([number, title, body, detail], index)=>(
+          <section class={`chapter chapter-${index + 1} reveal`} data-chapter-number={number} data-transition-kind={chapterTransition(number)} id={`chapter-${number}`} aria-labelledby={`heading-${number}`}>
+            <div class="chapter-number">{number}<span></span></div><div class="chapter-copy"><p class="eyebrow">FIELD NOTE {number}</p><h2 id={`heading-${number}`}>{title}</h2><p>{body}</p>{detail && <p class="chapter-detail">{detail}</p>}
+              {project.id === 'terraseg-ai' && number === '05' && <div class="results-protocols">
+                <div class="result-protocol"><h3>Landslide4Sense · All14 U-Net · 3 seeds</h3><div class="metric-strip"><div><strong>0.6079</strong><span>Mean IoU</span></div><div><strong>0.7562</strong><span>Mean F1</span></div><div><strong>0.7500</strong><span>Mean precision</span></div><div><strong>0.7627</strong><span>Mean recall</span></div><div><strong>0.0069</strong><span>IoU standard deviation</span></div></div></div>
+                <div class="result-protocol"><h3>Bijie · ResNet34 U-Net · 3 seeds</h3><div class="metric-strip"><div><strong>0.7913</strong><span>Mean IoU</span></div><div><strong>0.8835</strong><span>Mean F1</span></div><div><strong>0.8736</strong><span>Mean precision</span></div><div><strong>0.8935</strong><span>Mean recall</span></div></div><p>Arithmetic means from the saved seed-level test outputs. This is the landslide-positive subset only; the two dataset protocols are not directly comparable.</p></div>
+              </div>}
+              {project.id === 'terraseg-ai' && number === '06' && <div class="evidence-note"><span class="evidence-mark">◎</span><div><b>Notebook evidence</b><span>Grad-CAM · channel permutation · candidate regions · Gradio patch inspection</span></div></div>}
+              {project.id === 'aquaguard-ai' && number === '03' && <div class="agent-sequence"><span>WATER QUALITY</span><b>→</b><span>WEATHER RISK</span><b>→</b><span>MARKET CONTEXT</span><b>→</b><span class="agent-final">ROOT SYNTHESIS</span></div>}
+              {index === chapters.length - 1 && <div class="limit-list">{project.limitationsAndDisclaimers.map((item)=><p><span aria-hidden="true">↳</span>{item}</p>)}</div>}
+            </div>
+            <div class={`chapter-visual chapter-visual-${visual} chapter-scene-${number}`} data-chapter-visual={number} aria-hidden="true"><span class="visual-kicker">{number} / {title}</span>
+              {visual === 'terrain' && <>
+                {number === '03' && <img class="chapter-evidence" src={`${root}images/terraseg/bijie-results.webp`} alt="" width="1308" height="1289" loading="lazy"/>}
+                {number === '05' && <img class="chapter-evidence" src={`${root}images/terraseg/explainability.webp`} alt="" width="1273" height="1850" loading="lazy"/>}
+                {number === '06' && <img class="chapter-evidence" src={`${root}images/terraseg/channel-importance.webp`} alt="" width="689" height="490" loading="lazy"/>}
+                <div class="mini-terrain"><i></i><i></i><i></i><b></b><span>{number === '03' ? 'BIJIE INPUTS · NOTEBOOK FIGURE' : number === '05' ? 'SAVED PREDICTIONS · NOTEBOOK FIGURE' : number === '06' ? 'CHANNEL ANALYSIS · NOTEBOOK FIGURE' : 'CONCEPTUAL TERRAIN STUDY'}</span></div>
+              </>}
+              {visual === 'water' && <div class="mini-water"><i></i><i></i><i></i><b>4</b><span>AGENT GRAPH</span></div>}
+              {visual === 'care' && <div class="mini-care"><i>RECORD</i><b>+</b><i>SCHEDULE</i><b>+</b><i>ADMISSION</i></div>}
+              {visual === 'pathways' && <div class="mini-path"><i>START</i><b>············</b><i>GOAL</i></div>}
+            </div>
+          </section>
+        ))}
+        {project.id === 'terraseg-ai' && <section class="evidence-gallery reveal" aria-labelledby="evidence-heading">
+          <p class="eyebrow">SAVED NOTEBOOK OUTPUTS</p><h2 id="evidence-heading">From the experiments.</h2>
+          <p class="gallery-intro">Figures below are exported from the supplied TerraSeg notebooks. They show qualitative model outputs and analysis; the decorative cover art is separate from this research evidence.</p>
+          <div class="figure-tabs" role="tablist" aria-label="TerraSeg research figures">
+            <button id="figure-tab-predictions" type="button" role="tab" tabindex="0" aria-controls="figure-panel-predictions" aria-selected="true" data-figure-tab="predictions">Landslide4Sense / predictions</button>
+            <button id="figure-tab-channels" type="button" role="tab" tabindex="-1" aria-controls="figure-panel-channels" aria-selected="false" data-figure-tab="channels">Channel analysis</button>
+            <button id="figure-tab-bijie" type="button" role="tab" tabindex="-1" aria-controls="figure-panel-bijie" aria-selected="false" data-figure-tab="bijie">Bijie / terrain inputs</button>
+          </div>
+          <div class="evidence-grid">
+            <figure class="evidence-figure evidence-wide" id="figure-panel-predictions" role="tabpanel" aria-labelledby="figure-tab-predictions" data-figure-panel="predictions"><img src={`${root}images/terraseg/explainability.webp`} alt="Saved Landslide4Sense notebook figure comparing optical RGB patches, ground-truth masks, landslide probability maps and false-alarm or missed-region overlays." width="1273" height="1850" loading="lazy"/><figcaption><span>01 / LANDSLIDE4SENSE</span><b>Test-set qualitative predictions</b><small>Optical RGB · ground truth · predicted probability · error overlay</small></figcaption></figure>
+            <figure class="evidence-figure evidence-wide" id="figure-panel-channels" role="tabpanel" aria-labelledby="figure-tab-channels" data-figure-panel="channels" hidden><img src={`${root}images/terraseg/channel-importance.webp`} alt="Notebook channel-permutation chart showing IoU change after shuffling each input channel; Sentinel-2 B4 and slope show the largest drops in this analysis." width="689" height="490" loading="lazy"/><figcaption><span>02 / CHANNEL ANALYSIS</span><b>Permutation importance</b><small>Single saved experiment · channel shuffle sensitivity</small></figcaption></figure>
+            <figure class="evidence-figure evidence-wide" id="figure-panel-bijie" role="tabpanel" aria-labelledby="figure-tab-bijie" data-figure-panel="bijie" hidden><img src={`${root}images/terraseg/bijie-results.webp`} alt="Bijie dataset notebook examples showing satellite photo, raw DEM values, DEM gradient relief and landslide outline overlays." width="1308" height="1289" loading="lazy"/><figcaption><span>03 / BIJIE DATASET</span><b>Image and terrain inputs</b><small>Photo · raw DEM · relief · landslide outline</small></figcaption></figure>
+          </div>
+          <p class="gallery-disclaimer">Area annotations and outlines are notebook visualisations. Geographic calibration and map-accurate area measurements have not been independently verified.</p>
+        </section>}
+        <section class="project-resources reveal" aria-labelledby="resources-heading"><p class="eyebrow">FURTHER READING</p><h2 id="resources-heading">Continue into the work.</h2>
+          <div class="resource-links">{project.links.filter((link)=>!link.isPlaceholder).map((link)=><a href={link.url} target={link.isExternal ? '_blank' : undefined} rel={link.isExternal ? 'noopener noreferrer' : undefined}><span>{link.label}</span><b aria-hidden="true">↗</b></a>)}
+          </div>
+        </section>
+      </div>
+    </div>
+    <nav class="project-switcher" aria-label="Browse project stories"><a href={`${root}projects/${previous.id}/`} data-transition-kind={transitionStyle(previous.id)}><span>← PREVIOUS STORY</span><b>{previous.title}</b></a><a class="switcher-home" href={`${root}#projects`} data-story-return={project.id} data-transition-kind="typographic">ALL PROJECTS</a><a class="next-story" href={`${root}projects/${next.id}/`} data-transition-kind={transitionStyle(next.id)}><span>NEXT STORY →</span><b>{next.title}</b></a></nav>
+  </div>
+</AtelierLayout>
+
+<script>
+  const experience = document.querySelector<HTMLElement>('[data-experience]');
+  if (experience) {
+    const progress = experience.querySelector<HTMLElement>('.experience-progress span');
+    const stage = experience.querySelector<HTMLElement>('.visual-stage');
+    const scrollPaths = [...experience.querySelectorAll<SVGPathElement>('.path-lit path, .agent-lines path')].map(path => ({ path, length: path.getTotalLength() }));
+    const updateProgress = () => {
+      if (!progress) return;
+      const range = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = `scaleX(${range > 0 ? window.scrollY / range : 0})`;
+    };
+    const updateSceneTravel = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        stage?.style.removeProperty('--scene-travel');
+        experience.querySelectorAll<HTMLElement>('.chapter').forEach((chapter) => { chapter.style.removeProperty('--chapter-travel'); chapter.style.removeProperty('--chapter-progress'); });
+        experience.querySelectorAll<HTMLElement>('.path-lit path').forEach(path => path.style.removeProperty('--route-offset'));
+        return;
+      }
+      const height = window.innerHeight;
+      const documentRange = document.documentElement.scrollHeight - height;
+      experience.style.setProperty('--story-progress', String(documentRange > 0 ? window.scrollY / documentRange : 0));
+      if (stage) {
+        const rect = stage.getBoundingClientRect();
+        const depth = Math.max(0, Math.min(1, (height - rect.top) / (height + rect.height)));
+        stage.style.setProperty('--scene-travel', `${depth * -16}px`);
+      }
+      const chapters = [...experience.querySelectorAll<HTMLElement>('.chapter')];
+      let activeChapterNumber = '';
+      let activeChapterId = '';
+      let nearest = Infinity;
+      chapters.forEach((chapter) => {
+        const rect = chapter.getBoundingClientRect();
+        const depth = Math.max(0, Math.min(1, (height - rect.top) / (height + rect.height)));
+        chapter.style.setProperty('--chapter-travel', `${(0.5 - depth) * 22}px`);
+        const progress = Math.max(0, Math.min(1, (height * .82 - rect.top) / (height * .62 + rect.height)));
+        chapter.style.setProperty('--chapter-progress', progress.toFixed(3));
+        chapter.style.setProperty('--chapter-depth', `${(progress * 24).toFixed(1)}px`);
+        chapter.style.setProperty('--chapter-tilt', `${((.5 - progress) * 4).toFixed(2)}deg`);
+        chapter.style.setProperty('--mask-inset', `${(100 - progress * 100).toFixed(1)}%`);
+        chapter.style.setProperty('--terrain-shift', `${((progress - .5) * 18).toFixed(1)}px`);
+        chapter.style.setProperty('--terrain-scale', (.94 + progress * .06).toFixed(3));
+        chapter.style.setProperty('--fault-shift', `${((.5 - progress) * 20).toFixed(1)}px`);
+        chapter.style.setProperty('--fault-rotate', `${((.5 - progress) * 9).toFixed(1)}deg`);
+        chapter.style.setProperty('--ripple-size-a', `${80 + progress * 85}px`);
+        chapter.style.setProperty('--ripple-size-b', `${110 + progress * 105}px`);
+        chapter.style.setProperty('--ripple-size-c', `${140 + progress * 125}px`);
+        chapter.style.setProperty('--ripple-opacity-a', (.5 - progress * .3).toFixed(3));
+        chapter.style.setProperty('--ripple-opacity-b', (.3 - progress * .15).toFixed(3));
+        chapter.style.setProperty('--ripple-opacity-c', (.18 - progress * .08).toFixed(3));
+        chapter.style.setProperty('--ripple-core-scale', (.76 + progress * .5).toFixed(3));
+        chapter.style.setProperty('--workflow-scale', (.35 + progress * .65).toFixed(3));
+        chapter.style.setProperty('--path-fill', `${(progress * 100).toFixed(1)}%`);
+        const distance = Math.abs((rect.top + rect.bottom) * .5 - height * .56);
+        if (distance < nearest) { nearest = distance; activeChapterNumber = chapter.dataset.chapterNumber || ''; activeChapterId = chapter.id; }
+      });
+      if (activeChapterNumber) {
+        experience.dataset.activeChapter = activeChapterNumber;
+        experience.querySelectorAll<HTMLAnchorElement>('.chapter-rail a').forEach(link => {
+          const current = link.hash === `#${activeChapterId}`;
+          if (current) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
+        });
+      }
+      const sceneProgress = documentRange > 0 ? window.scrollY / documentRange : 0;
+      experience.style.setProperty('--water-ripple-scale', (1 + sceneProgress * .15).toFixed(3));
+      experience.style.setProperty('--water-travel', `${-sceneProgress * 10}px`);
+      experience.style.setProperty('--mask-travel', `${sceneProgress * 28}px`);
+      experience.style.setProperty('--mask-rotation', `${sceneProgress * 8}deg`);
+      experience.style.setProperty('--contour-travel', `${sceneProgress * 30}px`);
+      experience.style.setProperty('--contour-rotation', `${-8 + sceneProgress * 4}deg`);
+      experience.style.setProperty('--contour-scale', (1 + sceneProgress * .1).toFixed(3));
+      experience.style.setProperty('--care-scale', (.35 + sceneProgress * .65).toFixed(3));
+      scrollPaths.forEach(({ path, length }) => { path.style.strokeDasharray = `${length}`; path.style.strokeDashoffset = `${length * (1 - sceneProgress)}`; });
+    };
+    updateProgress();
+    updateSceneTravel();
+    let sceneFrame = 0;
+    window.addEventListener('scroll', () => {
+      updateProgress();
+      if (!sceneFrame) sceneFrame = requestAnimationFrame(() => { updateSceneTravel(); sceneFrame = 0; });
+    }, { passive: true });
+    window.addEventListener('resize', updateSceneTravel, { passive: true });
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', updateSceneTravel);
+    const reveals = experience.querySelectorAll<HTMLElement>('.reveal');
+    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+      }), { threshold: 0.12 });
+      reveals.forEach((item) => observer.observe(item));
+    } else reveals.forEach((item) => item.classList.add('is-visible'));
+
+    const agentNotes: Record<string, string> = {
+      root: 'Root agent · combines specialist perspectives into a risk assessment, evidence, next steps and uncertainty.',
+      water: 'Water-quality specialist · reasons about dissolved oxygen, temperature, pH and salinity in the supplied simulated farm context.',
+      weather: 'Weather-risk specialist · contributes environmental-condition context; no live forecast feed is claimed.',
+      market: 'Market-intelligence specialist · contributes market price and trend context; no live market feed is claimed.'
+    };
+    const agentDetail = experience.querySelector<HTMLElement>('.agent-detail');
+    experience.querySelectorAll<HTMLButtonElement>('[data-agent]').forEach((button) => button.addEventListener('click', () => {
+      experience.querySelectorAll<HTMLButtonElement>('[data-agent]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      if (agentDetail) agentDetail.textContent = agentNotes[button.dataset.agent ?? 'root'];
+    }));
+
+    const careNotes: Record<string, string> = {
+      patient: 'Patient records · part of the documented learning-prototype scope.',
+      doctor: 'Doctor records and appointment scheduling · documented project workflows.',
+      admission: 'Basic admission workflow · academic prototype scaffolding.'
+    };
+    const careDetail = experience.querySelector<HTMLElement>('.care-detail');
+    experience.querySelectorAll<HTMLButtonElement>('[data-care-step]').forEach((button) => button.addEventListener('click', () => {
+      experience.querySelectorAll<HTMLButtonElement>('[data-care-step]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      if (careDetail) careDetail.textContent = careNotes[button.dataset.careStep ?? 'patient'];
+    }));
+
+    const algorithmNotes: Record<string, string> = {
+      astar: 'A* search · 8-puzzle coursework',
+      bfs: 'Breadth-first search · water-jug coursework',
+      minimax: 'Minimax · Tic-Tac-Toe coursework',
+      pddl: 'PDDL examples · classical planning coursework'
+    };
+    const algorithmDetail = experience.querySelector<HTMLElement>('[data-algorithm-detail]');
+    const pathArt = experience.querySelector<HTMLElement>('.path-art');
+    experience.querySelectorAll<HTMLButtonElement>('[data-algorithm]').forEach((button) => button.addEventListener('click', () => {
+      experience.querySelectorAll<HTMLButtonElement>('[data-algorithm]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      if (algorithmDetail) algorithmDetail.textContent = algorithmNotes[button.dataset.algorithm ?? 'astar'];
+      if (pathArt) pathArt.dataset.activeAlgorithm = button.dataset.algorithm ?? 'astar';
+    }));
+
+    const figureTabs = experience.querySelectorAll<HTMLButtonElement>('[data-figure-tab]');
+    figureTabs.forEach((tab) => tab.addEventListener('click', () => {
+      const key = tab.dataset.figureTab;
+      figureTabs.forEach((item) => { item.setAttribute('aria-selected', String(item === tab)); item.tabIndex = item === tab ? 0 : -1; });
+      experience.querySelectorAll<HTMLElement>('[data-figure-panel]').forEach((panel) => { panel.hidden = panel.dataset.figurePanel !== key; });
+    }));
+    figureTabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
+      const keyEvent = event as KeyboardEvent;
+      if (keyEvent.key !== 'ArrowRight' && keyEvent.key !== 'ArrowLeft') return;
+      keyEvent.preventDefault();
+      const delta = keyEvent.key === 'ArrowRight' ? 1 : -1;
+      const nextTab = figureTabs[(index + delta + figureTabs.length) % figureTabs.length];
+      nextTab.focus(); nextTab.click();
+    }));
+
+    const transitionCurtain = experience.querySelector<HTMLElement>('[data-transition-curtain]');
+    try {
+      const rawCardEntry = sessionStorage.getItem('atelier-story-transition');
+      const cardEntry = rawCardEntry ? JSON.parse(rawCardEntry) as { projectId?: string; artSrc?: string } : null;
+      if (cardEntry && (cardEntry.projectId === experience.dataset.projectId || cardEntry.projectId === location.pathname.split('/').filter(Boolean).at(-1))) {
+        sessionStorage.removeItem('atelier-story-transition');
+        const arrival = document.createElement('div');
+        arrival.className = 'story-arrival';
+        arrival.setAttribute('aria-hidden', 'true');
+        const image = document.createElement('img');
+        if (cardEntry.artSrc?.startsWith('data:image/svg+xml') || (cardEntry.artSrc?.startsWith('/') && cardEntry.artSrc.includes('/images/atelier/'))) image.src = cardEntry.artSrc;
+        image.alt = '';
+        arrival.append(image);
+        for (let i = 0; i < 18; i++) { const particle = document.createElement('i'); particle.style.setProperty('--i', String(i)); particle.style.setProperty('--tx', `${(i - 9) * 8}px`); particle.style.setProperty('--ty', `${-30 - i * 3}px`); particle.style.left = `calc(50% + ${(i - 9) * 18}px)`; particle.style.top = `calc(50% - ${(i - 9) * 9}px)`; arrival.append(particle); }
+        document.body.append(arrival);
+        experience.classList.add('is-card-arrival');
+        try { sessionStorage.setItem('atelier-story-artwork', cardEntry.artSrc || ''); } catch { /* The story still opens normally. */ }
+        requestAnimationFrame(() => {
+          const visual = experience.querySelector<HTMLElement>('.visual-stage');
+          const rect = visual?.getBoundingClientRect();
+          if (!rect) { arrival.remove(); return; }
+          const clip = `inset(${rect.top}px ${Math.max(0, innerWidth - rect.right)}px ${Math.max(0, innerHeight - rect.bottom)}px ${rect.left}px round 3px)`;
+          arrival.animate([{ clipPath: 'inset(0 0 0 0 round 0px)', opacity: 1 }, { clipPath: clip, opacity: .16 }], { duration: 940, easing: 'cubic-bezier(.2,.75,.18,1)', fill: 'forwards' }).finished.finally(() => arrival.remove());
+          window.setTimeout(() => experience.classList.add('story-content-ready'), 370);
+          window.setTimeout(() => experience.classList.remove('is-card-arrival'), 1100);
+        });
+      }
+    } catch { /* Continue with the regular case-study entrance. */ }
+    try {
+      const enteringStyle = sessionStorage.getItem('atelier-entry-transition');
+      if (enteringStyle) {
+        sessionStorage.removeItem('atelier-entry-transition');
+        experience.dataset.entryTransition = enteringStyle;
+        requestAnimationFrame(() => experience.classList.add('is-entering'));
+        window.setTimeout(() => experience.classList.remove('is-entering'), 900);
+      }
+    } catch { /* Private browsing may disable sessionStorage; normal navigation still works. */ }
+    experience.querySelectorAll<HTMLAnchorElement>('[data-transition-kind]').forEach((link) => link.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const returnProject = link.dataset.storyReturn;
+      if (returnProject) { try { sessionStorage.setItem('atelier-story-return', returnProject); } catch { /* Portfolio link remains available. */ } }
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') && !href.includes('/projects')) return;
+      event.preventDefault();
+      const kind = link.dataset.transitionKind ?? 'typographic';
+      try { sessionStorage.setItem('atelier-entry-transition', kind); } catch { /* Continue without the entry flourish. */ }
+      if (transitionCurtain) {
+        transitionCurtain.dataset.style = kind;
+        transitionCurtain.classList.add('is-active');
+        window.setTimeout(() => { window.location.assign(href); }, 460);
+      } else window.location.assign(href);
+    }));
+  }
+</script>
+
+<style>
+  .experience{--ink:#251d25;--muted:#81737a;--paper:#f8f6f2;--accent:#9b7562;--line:rgba(43,35,40,.15);--surface:#fffefa;background:var(--paper);color:var(--ink);min-height:100vh;overflow:hidden;isolation:isolate}
+  .skip-story-transition{position:fixed;z-index:20002;top:12px;left:12px;padding:9px 12px;background:#f7f0e8;color:#2a202b;font:11px var(--font-mono,monospace);transform:translateY(-160%)}.skip-story-transition:focus{transform:none}
+  .story-arrival{position:fixed;z-index:20001;inset:0;overflow:hidden;background:#1d1720;pointer-events:none}.story-arrival img{width:100%;height:100%;object-fit:cover;filter:saturate(.84) contrast(1.04)}.story-arrival:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,#17131b30,#17131b86)}.story-arrival i{position:absolute;z-index:2;width:2px;height:2px;border-radius:50%;background:#e1c590;box-shadow:0 0 8px #e1c590;animation:arrival-dust 820ms ease-out calc(var(--i)*18ms) both}
+  .story-return-flight{position:fixed;z-index:20001;inset:0;overflow:hidden;pointer-events:none;background:#1d1720}.story-return-flight img{width:100%;height:100%;object-fit:cover}
+  .experience.is-card-arrival .hero-copy h1{clip-path:inset(0 100% 0 0);opacity:1;animation:none!important}.experience.story-content-ready .hero-copy h1{animation:story-title-mask .82s cubic-bezier(.2,.78,.18,1) both!important}.experience.is-card-arrival .hero-copy>:not(h1){opacity:0}.experience.story-content-ready .hero-copy>:not(h1){animation:story-copy-enter .55s ease-out both}.experience.story-content-ready .hero-copy>:nth-child(2){animation-delay:80ms}.experience.story-content-ready .hero-copy>:nth-child(3){animation-delay:160ms}.experience.story-content-ready .hero-copy>:nth-child(4){animation-delay:240ms}.experience.is-card-arrival .story-intro,.experience.is-card-arrival .chapter-layout{opacity:0}.experience.story-content-ready .story-intro,.experience.story-content-ready .chapter-layout{animation:story-copy-enter .65s 280ms ease-out both}
+  @keyframes story-title-mask{from{clip-path:inset(0 100% 0 0);transform:translateX(-.025em)}to{clip-path:inset(0);transform:none}}
+  @keyframes story-copy-enter{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+  @keyframes arrival-dust{0%{opacity:0;translate:0 0}20%{opacity:.9}100%{opacity:0;translate:var(--tx) var(--ty)}}
+  .experience--terrain{--paper:#161a18;--ink:#f3eee4;--muted:#b2b1a2;--accent:#c4a56b;--line:rgba(230,220,190,.16);--surface:#202522;background-image:radial-gradient(ellipse at 75% 5%,#aaa26713,transparent 35%),repeating-radial-gradient(ellipse at 88% 12%,transparent 0 44px,#b6a56c0a 45px 46px,transparent 47px 73px)}
+  .experience--water{--paper:#091e27;--ink:#eff8f4;--muted:#a5c4c4;--accent:#82d0c6;--line:rgba(202,241,234,.18);--surface:#102c35;background-image:radial-gradient(ellipse at 50% 0%,#4dc8c01c,transparent 45%),repeating-radial-gradient(ellipse at 94% 28%,transparent 0 66px,#9fe9e00b 67px 68px,transparent 69px 103px)}
+  .experience--care{--paper:#f6f8f6;--ink:#1c2d34;--muted:#687b80;--accent:#7d9d91;--line:rgba(34,65,68,.16);--surface:#fff;background-image:radial-gradient(ellipse at 90% 12%,#aec4b52b,transparent 33%),linear-gradient(90deg,transparent 49.9%,#7693850a 50%,transparent 50.1%)}
+  .experience--pathways{--paper:#111423;--ink:#f3f2fb;--muted:#a6a7c2;--accent:#a6a0f4;--line:rgba(220,218,255,.16);--surface:#1a1d31;background-image:radial-gradient(ellipse at 50% 0%,#8883ed1a,transparent 42%),linear-gradient(#b7b6f009 1px,transparent 1px),linear-gradient(90deg,#b7b6f009 1px,transparent 1px);background-size:auto,42px 42px,42px 42px}
+  :global(body:has(.experience) .atelier-header),:global(body:has(.experience) .recruiter-drawer),:global(body:has(.experience) .recruiter-drawer-backdrop){display:none!important}
+  :global(body:has(.experience--terrain) .atelier-footer){background:#161a18;border-color:rgba(230,220,190,.16);color:#b2b1a2}
+  :global(body:has(.experience--terrain) .atelier-footer .f-name),:global(body:has(.experience--terrain) .atelier-footer strong){color:#f3eee4}
+  :global(body:has(.experience--water) .atelier-footer){background:#091e27;border-color:rgba(202,241,234,.18);color:#a5c4c4}
+  :global(body:has(.experience--water) .atelier-footer .f-name),:global(body:has(.experience--water) .atelier-footer strong){color:#eff8f4}
+  :global(body:has(.experience--care) .atelier-footer){background:#f6f8f6;border-color:rgba(34,65,68,.16);color:#687b80}
+  :global(body:has(.experience--care) .atelier-footer .f-name),:global(body:has(.experience--care) .atelier-footer strong){color:#1c2d34}
+  :global(body:has(.experience--pathways) .atelier-footer){background:#111423;border-color:rgba(220,218,255,.16);color:#a6a7c2}
+  :global(body:has(.experience--pathways) .atelier-footer .f-name),:global(body:has(.experience--pathways) .atelier-footer strong){color:#f3f2fb}
+  .experience-progress{position:fixed;z-index:100;inset:0 0 auto;height:2px;background:transparent}.experience-progress span{display:block;width:100%;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+  .experience-nav{height:78px;max-width:1420px;padding:0 clamp(24px,6vw,90px);margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:relative;z-index:5}.wordmark{display:flex;align-items:center;gap:12px;color:var(--ink);font:600 10px/1 var(--font-mono,monospace);letter-spacing:.19em;text-decoration:none}.wordmark-mark{display:grid;place-items:center;width:31px;height:31px;border:1px solid var(--accent);border-radius:50%;font:500 13px var(--font-serif,serif);color:var(--accent);letter-spacing:0}.return-link{color:var(--muted);text-decoration:none;font-size:13px}.return-link span{color:var(--accent);padding-right:8px}.return-link:hover,.repository-link:hover,.story-link:hover{color:var(--accent)}
+  .experience-hero{max-width:1420px;margin:auto;padding:clamp(52px,8vw,112px) clamp(24px,6vw,90px) 36px;display:grid;grid-template-columns:minmax(290px,.84fr) minmax(420px,1.16fr);gap:clamp(32px,6vw,92px);align-items:center;min-height:min(820px,calc(100vh - 78px));position:relative}.hero-copy{position:relative;z-index:1;min-width:0}.eyebrow{font:600 10px/1.5 var(--font-mono,monospace);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 22px}.eyebrow-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin:0 9px 1px 0}.eyebrow-divider{opacity:.45;padding:0 8px}.hero-copy h1{font:500 clamp(48px,7vw,102px)/.94 var(--font-serif,Georgia,serif);letter-spacing:-.045em;margin:0 0 24px;max-width:720px}.experience .hero-copy h1{color:var(--ink);max-width:100%;white-space:normal;overflow-wrap:normal;text-wrap:balance}.hero-copy .eyebrow{max-width:100%;white-space:normal;overflow-wrap:anywhere}.hero-deck{font:400 clamp(17px,1.8vw,22px)/1.55 var(--font-serif,Georgia,serif);color:var(--muted);max-width:510px;margin:0}.hero-actions{display:flex;align-items:center;gap:26px;margin:34px 0 34px}.story-link,.repository-link{font-size:12px;font-weight:600;text-decoration:none;color:var(--ink);transition:color .2s}.story-link{padding:13px 18px;border:1px solid var(--accent);border-radius:2px}.story-link span{padding-left:14px;color:var(--accent)}.repository-link{color:var(--muted)}.repository-link span{color:var(--accent);padding-left:5px}.hero-tags{display:flex;gap:8px;flex-wrap:wrap;max-width:560px}.hero-tags span{font:500 9px var(--font-mono,monospace);letter-spacing:.04em;color:var(--muted);border:1px solid var(--line);padding:7px 9px;border-radius:100px}.visual-stage{height:clamp(380px,48vw,610px);position:relative;perspective:1000px}.stage-index{position:absolute;right:0;top:0;font:10px var(--font-mono,monospace);letter-spacing:.13em;color:var(--muted)}.stage-index i{font-style:normal;color:var(--accent);padding:0 6px}
+  .hero-bottom{grid-column:1/-1;display:flex;align-items:center;gap:13px;padding-top:28px;border-top:1px solid var(--line);font:9px var(--font-mono,monospace);letter-spacing:.16em;color:var(--muted)}.scroll-line{width:60px;height:1px;background:var(--accent);transform-origin:left;animation:line-arrive 1.2s .3s both}.hero-bottom span:last-child{margin-left:auto}
+  .terrain-art,.water-art,.care-art,.path-art{position:absolute;inset:35px 0 18px;border:1px solid var(--line);overflow:hidden;isolation:isolate}.terrain-art{background:radial-gradient(ellipse at 55% 23%,#554f36 0,#272b24 38%,#191d1b 74%);transform:rotateX(6deg) rotateY(-4deg);box-shadow:0 45px 100px #0005}.terrain-art:after{content:"";position:absolute;inset:0;background:linear-gradient(140deg,transparent 30%,rgba(196,165,107,.08),transparent 72%);mix-blend-mode:screen}.terrain-sun{position:absolute;width:42%;aspect-ratio:1;border-radius:50%;top:9%;left:31%;background:radial-gradient(circle,#d9c99950 0,#a7956030 42%,transparent 70%);filter:blur(4px)}.terrain-ridge{position:absolute;left:-12%;width:130%;height:55%;bottom:-8%;border-radius:50% 50% 0 0;border-top:1px solid #c2ad795e;transform:rotate(-8deg);background:repeating-linear-gradient(174deg,transparent 0 16px,#c3ae7540 17px,#c3ae7522 18px,transparent 19px 32px)}.ridge-one{bottom:3%;height:45%;background-color:#34392c}.ridge-two{bottom:-8%;left:-5%;height:34%;transform:rotate(8deg);background-color:#252b25}.ridge-three{bottom:-20%;height:30%;background-color:#1a201d}.terrain-contours{position:absolute;inset:30% 10% 8%;background:repeating-radial-gradient(ellipse at 58% 65%,transparent 0 17px,#d0b8792b 18px 19px,transparent 20px 35px);transform:rotate(-8deg);mask-image:linear-gradient(transparent 0%,#000 30%,#000 90%,transparent)}.terrain-mask{position:absolute;left:40%;top:40%;width:23%;height:31%;background:linear-gradient(130deg,#aa8068aa,#c7a47e80);clip-path:polygon(22% 0,83% 11%,100% 42%,72% 72%,38% 100%,5% 76%,0 37%);filter:drop-shadow(0 0 16px #d4ae6b77);animation:mask-breathe 6s ease-in-out infinite alternate}.scan-line{position:absolute;left:0;right:0;height:1px;top:20%;background:linear-gradient(90deg,transparent,#e5c87d99,transparent);box-shadow:0 0 20px #e1be6499;animation:scan 8s ease-in-out infinite}.annotation,.coordinate{position:absolute;z-index:2;font:8px/1.5 var(--font-mono,monospace);letter-spacing:.12em;color:#dfd0a9a8}.annotation:before{content:"";display:inline-block;width:18px;height:1px;background:var(--accent);vertical-align:middle;margin-right:7px}.annotation-a{left:7%;top:27%}.annotation-b{right:7%;top:55%}.coordinate-a{right:8%;top:15%}.terrain-caption,.water-caption{position:absolute;bottom:15px;left:18px;right:18px;z-index:3;display:flex;justify-content:space-between;color:#ded7c0a8;font:8px var(--font-mono,monospace);letter-spacing:.12em}
+  .water-art{background:radial-gradient(ellipse at 50% 50%,#1c6570 0,#123d4b 43%,#0b2632 78%,#091e27);border-radius:48% 52% 47% 53%;animation:water-shape 12s ease-in-out infinite alternate}.water-art:before{content:"";position:absolute;inset:-20%;background:repeating-radial-gradient(ellipse at 52% 48%,transparent 0 40px,#a5e8df16 41px 42px,transparent 43px 70px);animation:ripple-drift 16s linear infinite}.water-orb{position:absolute;border-radius:50%;filter:blur(2px);background:radial-gradient(circle at 35% 30%,#f2ffed9c,#8de5d548 28%,#7bc2cf05 67%);border:1px solid #c0f3e725}.orb-a{width:42%;aspect-ratio:1;left:30%;top:27%;animation:float-orb 8s ease-in-out infinite}.orb-b{width:22%;aspect-ratio:1;left:55%;top:20%;opacity:.55;animation:float-orb 9s 1s ease-in-out infinite reverse}.water-ripple{position:absolute;left:50%;top:50%;width:44%;aspect-ratio:1;border:1px solid #b5f4e354;border-radius:50%;transform:translate(-50%,-50%);animation:ripple 5s ease-out infinite}.ripple-b{animation-delay:2.5s}.agent-lines{position:absolute;width:100%;height:100%;inset:0;z-index:1;fill:var(--accent)}.agent-lines path{fill:none;stroke:#bbebe96b;stroke-width:1;stroke-dasharray:4 7;animation:dash 24s linear infinite}.agent-node{position:absolute;z-index:2;display:grid;place-items:center;width:70px;height:70px;border-radius:50%;background:linear-gradient(145deg,#d3fbec24,#71c8d10e);border:1px solid #caf8ed59;box-shadow:0 15px 36px #00191d55,inset 0 0 24px #b9f1ea1a;backdrop-filter:blur(4px);color:#e4fbf2;font:8px var(--font-mono,monospace);letter-spacing:.08em}.node-core{left:calc(50% - 38px);top:calc(50% - 38px);width:78px;height:78px;background:radial-gradient(circle,#a5e7db61,#276a7447);font-size:7px}.node-core b{font:500 23px var(--font-serif,Georgia,serif);color:#d5fff2}.node-water{left:16%;top:17%}.node-weather{right:14%;top:17%}.node-market{left:16%;bottom:17%}.node-context{right:14%;bottom:17%}.water-caption{color:#c9e8dfad}
+  .care-art{background:linear-gradient(135deg,#edf3ef,#e4efee 48%,#f3eee3);box-shadow:0 30px 70px #29474218;transform-style:preserve-3d;transform:rotateY(-4deg) rotateX(1deg)}.care-grid{position:absolute;inset:0;background-image:linear-gradient(#546d6712 1px,transparent 1px),linear-gradient(90deg,#546d6712 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(transparent,#000)}.care-hub{position:absolute;left:calc(50% - 50px);top:calc(48% - 50px);width:100px;height:100px;border-radius:50%;background:#fffefa;border:1px solid #92aaa255;box-shadow:0 15px 50px #31584c1c;display:grid;place-content:center;text-align:center;color:#7b9486;font:9px var(--font-mono,monospace);letter-spacing:.18em}.care-hub b{font:300 28px var(--font-serif,serif);color:#9eb8a7}.care-panel{position:absolute;width:178px;padding:17px 18px;background:#ffffffdf;border:1px solid #718b7929;box-shadow:0 18px 40px #324c4017;display:flex;flex-direction:column;gap:8px;transform:translateZ(20px);transition:transform .35s}.care-panel:hover{transform:translateY(-5px) translateZ(25px)}.care-panel i,.care-panel em{font:8px var(--font-mono,monospace);font-style:normal;letter-spacing:.11em;color:#86998e}.care-panel b{font:500 18px var(--font-serif,Georgia,serif);color:#324c43}.care-panel span{font-size:10px;color:#73827d}.care-panel em{color:#8caa9a}.panel-patient{left:7%;top:15%}.panel-appointment{right:6%;top:24%}.panel-admission{left:24%;bottom:12%}.care-rail{position:absolute;height:1px;width:29%;background:#8ea99a77;transform-origin:left}.rail-a{left:34%;top:35%;transform:rotate(17deg)}.rail-b{left:46%;top:62%;transform:rotate(-35deg)}.care-caption{position:absolute;bottom:18px;right:20px;font:8px var(--font-mono,monospace);letter-spacing:.12em;color:#7e9387}
+  .path-art{background:radial-gradient(ellipse at 50% 47%,#242844,#171a2d 52%,#111423);box-shadow:0 35px 90px #060711aa}.path-network{position:absolute;inset:8%;width:84%;height:84%;overflow:visible}.path-faint path,.path-lit path{fill:none;stroke-linecap:round;stroke-linejoin:round}.path-faint path{stroke:#8589c423;stroke-width:1}.path-lit path{stroke:#b9b3ff9c;stroke-width:1.5;stroke-dasharray:8 9;animation:dash 18s linear infinite;filter:drop-shadow(0 0 5px #9c93ff)}.path-node{fill:#252844;stroke:#8f8dd3;stroke-width:1.5;filter:drop-shadow(0 0 7px #7e78e4)}.n0,.n8{fill:#c2bdff}.path-label,.path-equation,.path-caption{position:absolute;font:8px var(--font-mono,monospace);letter-spacing:.13em;color:#c6c6e2}.label-start{left:7%;top:47%}.label-goal{right:7%;top:61%;color:#c5c0ff}.path-equation{left:8%;bottom:13%;font-size:12px;color:#c6c0ff}.path-caption{right:7%;top:13%;font-size:7px;color:#888aa9}
+  .path-art[data-active-algorithm="bfs"] .path-lit path{stroke:#79d0c7;filter:drop-shadow(0 0 6px #68cec2)}.path-art[data-active-algorithm="minimax"] .path-lit path{stroke:#d3a7ef;filter:drop-shadow(0 0 6px #c489ea)}.path-art[data-active-algorithm="pddl"] .path-lit path{stroke:#c9b773;filter:drop-shadow(0 0 6px #d8c67e)}
+  .path-art .path-lit path{opacity:.1;transition:opacity .25s,stroke .25s}.path-art[data-active-algorithm="astar"] .route-astar,.path-art[data-active-algorithm="bfs"] .route-bfs,.path-art[data-active-algorithm="minimax"] .route-minimax,.path-art[data-active-algorithm="pddl"] .route-pddl{opacity:1}
+  .story-intro{max-width:1240px;margin:0 auto;padding:clamp(80px,12vw,160px) clamp(24px,6vw,90px);display:grid;grid-template-columns:1fr 1fr;gap:9vw;border-top:1px solid var(--line);align-items:end}.story-intro h2,.chapter h2,.project-resources h2{font:500 clamp(32px,4.5vw,62px)/1.04 var(--font-serif,Georgia,serif);letter-spacing:-.035em;margin:0}.story-intro .eyebrow{margin-bottom:16px}.story-intro>p{color:var(--muted);font:400 17px/1.75 var(--font-serif,Georgia,serif);margin:0;max-width:560px}
+  .chapter-layout{max-width:1420px;margin:auto;padding:0 clamp(24px,6vw,90px) 120px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:clamp(32px,7vw,105px)}.chapter-rail{position:sticky;top:40px;align-self:start;display:flex;flex-direction:column;gap:6px;padding-top:6px}.rail-label{font:9px var(--font-mono,monospace);letter-spacing:.18em;color:var(--muted);margin:0 0 14px}.chapter-rail a{display:flex;gap:12px;align-items:baseline;padding:9px 0;text-decoration:none;color:var(--muted);font-size:11px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}.chapter-rail a:hover,.chapter-rail a:focus-visible{color:var(--ink);border-color:var(--accent)}.chapter-rail i{font:9px var(--font-mono,monospace);color:var(--accent);font-style:normal}.chapters{min-width:0}.chapter{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.55fr);gap:clamp(22px,5vw,70px);padding:54px 0 74px;border-top:1px solid var(--line);scroll-margin-top:45px}.chapter-number{position:absolute;left:-45px;top:61px;font:10px var(--font-mono,monospace);color:var(--accent)}.chapter-number span{display:block;width:24px;height:1px;background:var(--accent);margin-top:10px}.chapter-copy .eyebrow{margin-bottom:17px}.chapter h2{font-size:clamp(29px,3.7vw,48px);margin:0 0 19px}.chapter-copy>p:not(.eyebrow){font:400 15px/1.8 var(--font-serif,Georgia,serif);color:var(--muted);margin:0;max-width:690px}.chapter-visual{align-self:center;min-height:190px;position:relative;border:1px solid var(--line);background:var(--surface);overflow:hidden}.visual-kicker{position:absolute;top:14px;left:15px;font:7px var(--font-mono,monospace);letter-spacing:.13em;color:var(--muted);z-index:1}.mini-terrain{position:absolute;inset:20px 5px 0;background:radial-gradient(ellipse at 50% 90%,#b3a57755,transparent 66%)}.mini-terrain:before,.mini-terrain:after{content:"";position:absolute;left:-10%;width:120%;height:70%;bottom:-30%;border-radius:50% 50% 0 0;border-top:1px solid var(--accent);transform:rotate(-10deg);background:repeating-radial-gradient(ellipse at 40% 60%,transparent 0 10px #9a8d5b22 11px 12px,transparent 13px 19px)}.mini-terrain:after{bottom:-45%;transform:rotate(12deg)}.mini-terrain b{position:absolute;width:44px;height:55px;left:54%;top:52%;background:#ac816c99;clip-path:polygon(20% 0,100% 20%,75% 72%,44% 100%,0 55%)}.mini-terrain span{position:absolute;right:10px;bottom:10px;color:var(--muted);font:7px var(--font-mono,monospace)}.mini-water{position:absolute;inset:25px;background:radial-gradient(circle at 50% 50%,#44afa455,#14495300 64%)}.mini-water:before,.mini-water:after{content:"";position:absolute;width:90px;aspect-ratio:1;border:1px solid var(--accent);border-radius:50%;left:calc(50% - 45px);top:calc(50% - 45px);opacity:.45}.mini-water:after{width:140px;left:calc(50% - 70px);top:calc(50% - 70px)}.mini-water b{position:absolute;left:calc(50% - 9px);top:calc(50% - 13px);font:18px var(--font-serif,serif);color:var(--accent)}.mini-water span{position:absolute;bottom:0;right:0;font:7px var(--font-mono,monospace);color:var(--muted)}.mini-care{position:absolute;inset:55px 18px;display:flex;align-items:center;justify-content:space-between;color:var(--accent)}.mini-care i{font:7px var(--font-mono,monospace);font-style:normal;border:1px solid var(--line);padding:8px 7px;color:var(--muted)}.mini-care b{font:14px var(--font-serif,serif)}.mini-path{position:absolute;inset:25px 14px;display:flex;align-items:center;justify-content:space-between;color:var(--accent)}.mini-path i{font:7px var(--font-mono,monospace);font-style:normal}.mini-path b{letter-spacing:.12em;overflow:hidden;max-width:60%;font:10px var(--font-mono,monospace)}
+  .results-protocols{display:grid;gap:22px;margin-top:26px}.result-protocol{padding-top:17px;border-top:1px solid var(--line)}.result-protocol h3{margin:0;color:var(--muted);font:8px/1.5 var(--font-mono,monospace);letter-spacing:.11em;text-transform:uppercase}.result-protocol>p{margin:12px 0 0;color:var(--muted);font:9px/1.65 var(--font-mono,monospace)}.metric-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:14px;margin-top:14px}.metric-strip div{display:flex;flex-direction:column;gap:7px}.metric-strip strong{font:500 clamp(19px,2.5vw,29px) var(--font-serif,Georgia,serif);color:var(--accent)}.metric-strip span{font:8px/1.5 var(--font-mono,monospace);color:var(--muted)}.evidence-note{display:flex;gap:12px;margin-top:24px;padding:15px;border:1px solid var(--line);color:var(--muted)}.evidence-mark{font-size:19px;color:var(--accent)}.evidence-note div{display:flex;flex-direction:column;gap:5px}.evidence-note b{font:10px var(--font-mono,monospace);color:var(--ink)}.evidence-note span:last-child{font-size:11px;line-height:1.55}.agent-sequence{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:24px;font:8px var(--font-mono,monospace);letter-spacing:.05em;color:var(--muted)}.agent-sequence b{color:var(--accent);font-size:12px}.agent-sequence .agent-final{color:var(--accent)}.limit-list{margin-top:26px;padding:18px 20px;border-left:2px solid var(--accent);background:color-mix(in srgb,var(--surface) 70%,transparent);display:grid;gap:12px}.limit-list p{display:grid;grid-template-columns:14px 1fr;gap:9px;margin:0;font-size:11px;line-height:1.65;color:var(--muted)}.limit-list p span{color:var(--accent)}
+  .project-resources{padding:58px 0 76px;border-top:1px solid var(--line)}.project-resources .eyebrow{margin-bottom:14px}.project-resources h2{font-size:clamp(32px,4vw,52px)}.resource-links{margin-top:30px;border-top:1px solid var(--line)}.resource-links a{display:flex;justify-content:space-between;padding:17px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font:13px var(--font-serif,Georgia,serif);transition:padding .2s,color .2s}.resource-links a:hover{padding-left:8px;color:var(--accent)}.resource-links b{font:14px var(--font-mono,monospace);color:var(--accent)}.project-switcher{border-top:1px solid var(--line);max-width:1240px;margin:auto;padding:28px clamp(24px,6vw,90px) 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px}.project-switcher a{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}.project-switcher a span{font:8px var(--font-mono,monospace);letter-spacing:.12em;color:var(--muted)}.project-switcher a b{font:500 16px var(--font-serif,Georgia,serif)}.project-switcher .switcher-home{display:block;font:8px var(--font-mono,monospace);letter-spacing:.13em;color:var(--accent)}.project-switcher .next-story{text-align:right}
+  .evidence-gallery{padding:52px 0 74px;border-top:1px solid var(--line)}.evidence-gallery h2{font:500 clamp(30px,4vw,48px)/1.05 var(--font-serif,Georgia,serif);margin:0 0 14px;letter-spacing:-.03em}.gallery-intro{max-width:670px;color:var(--muted);font:14px/1.75 var(--font-serif,Georgia,serif);margin:0 0 28px}.evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.evidence-figure{margin:0;min-width:0;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column}.evidence-figure.evidence-wide{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(190px,.5fr);align-items:center}.evidence-figure img{display:block;width:100%;height:auto;max-height:510px;object-fit:contain;background:#f5f5f3}.evidence-figure:not(.evidence-wide) img{height:100%;min-height:230px;max-height:320px}.evidence-figure figcaption{padding:15px 17px;display:flex;flex-direction:column;gap:6px}.evidence-figure figcaption span{font:8px var(--font-mono,monospace);letter-spacing:.13em;color:var(--accent)}.evidence-figure figcaption b{font:500 16px var(--font-serif,Georgia,serif);color:var(--ink)}.evidence-figure figcaption small{font:10px/1.5 var(--font-mono,monospace);color:var(--muted)}.gallery-disclaimer{margin:14px 0 0;font:10px/1.6 var(--font-mono,monospace);color:var(--muted)}
+  .figure-tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 14px;scrollbar-width:thin}.figure-tabs button,.algorithm-controls button{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:100px;color:var(--muted);padding:9px 12px;font:8px var(--font-mono,monospace);letter-spacing:.05em;cursor:pointer;transition:background .25s,color .25s,border-color .25s}.figure-tabs button[aria-selected="true"],.algorithm-controls button[aria-pressed="true"]{background:var(--accent);color:#171715;border-color:var(--accent)}.experience--water .figure-tabs button[aria-selected="true"],.experience--pathways .algorithm-controls button[aria-pressed="true"]{color:#0b1720}.figure-tabs button:focus-visible,.algorithm-controls button:focus-visible,.agent-node:focus-visible,.care-panel:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.evidence-figure[hidden]{display:none}
+  .agent-node{appearance:none;padding:0;cursor:pointer;transition:transform .25s,background .25s,box-shadow .25s}.agent-node:hover,.agent-node[aria-pressed="true"]{transform:scale(1.09);background:linear-gradient(145deg,#d3fbec4a,#71c8d126);box-shadow:0 15px 42px #00191d66,inset 0 0 30px #b9f1ea2c}.node-market{left:calc(50% - 35px);bottom:12%}.agent-detail{position:absolute;z-index:3;left:50%;bottom:47px;transform:translateX(-50%);max-width:min(72%,430px);margin:0;padding:8px 11px;text-align:center;color:#e2f5ee;background:#082631b8;border:1px solid #caf8ed2c;font:8px/1.5 var(--font-mono,monospace);backdrop-filter:blur(8px)}
+  .care-panel{appearance:none;text-align:left;color:inherit;font-family:inherit;cursor:pointer;border-radius:0}.care-panel[aria-pressed="true"]{border-color:#7d9d91a8;box-shadow:0 20px 48px #324c402b,inset 2px 0 #7d9d91}.care-detail{position:absolute;left:16px;right:16px;bottom:35px;margin:0;color:#425e54;font:8px/1.5 var(--font-mono,monospace);text-align:center;letter-spacing:.02em}.care-caption{bottom:15px}.algorithm-controls{position:absolute;z-index:4;left:5%;right:5%;bottom:38px;display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap}.algorithm-controls button{padding:7px 10px;font-size:7px;color:#d0cffa;background:#171a2ecc}.algorithm-controls [data-algorithm-detail]{flex-basis:100%;text-align:center;color:#d0cffa;font:8px var(--font-mono,monospace);text-shadow:0 1px 6px #090b17}
+  .chapter-detail{margin:17px 0 0!important;padding:13px 15px;border-left:1px solid var(--accent);background:color-mix(in srgb,var(--surface) 70%,transparent);font:11px/1.7 var(--font-mono,monospace)!important;color:var(--muted)!important}.chapter-visual{transform-style:preserve-3d;will-change:transform,opacity}.visual-kicker{max-width:75%}.experience--terrain .chapter.is-visible .chapter-visual{animation:fracture-reform .82s cubic-bezier(.2,.75,.18,1) both}.experience--water .chapter.is-visible .chapter-visual{animation:fluid-reveal 1.05s cubic-bezier(.22,.7,.18,1) both}.experience--care .chapter.is-visible .chapter-visual{animation:network-reveal .78s cubic-bezier(.2,.7,.18,1) both}.experience--pathways .chapter.is-visible .chapter-visual{animation:path-reveal .82s cubic-bezier(.2,.7,.18,1) both}.chapter-copy h2{clip-path:inset(0 0 100% 0);animation:none}.chapter.is-visible .chapter-copy h2{animation:type-reveal .72s cubic-bezier(.2,.75,.2,1) both}.experience--terrain .chapter.is-visible .chapter-copy h2{text-shadow:1px 0 #bd9b5b55,-1px 0 #bd9b5b33}.chapter-scene-02 .mini-terrain{filter:hue-rotate(18deg)}.chapter-scene-03 .mini-terrain{transform:scale(1.18) rotate(6deg)}.chapter-scene-04 .mini-terrain{filter:contrast(1.2)}.chapter-scene-05 .mini-terrain{transform:scale(.88) translateY(10px)}.chapter-scene-06 .mini-terrain{filter:hue-rotate(-24deg) contrast(1.2)}.experience--water .chapter-scene-04 .mini-water{filter:hue-rotate(20deg) saturate(.8)}.experience--water .chapter-scene-05 .mini-water{filter:hue-rotate(95deg)}.experience--water .chapter-scene-06 .mini-water{transform:scale(.82)}.experience--care .chapter-scene-02 .mini-care{transform:scale(.82)}.experience--care .chapter-scene-03 .mini-care{filter:hue-rotate(40deg)}.experience--care .chapter-scene-04 .mini-care{transform:scale(1.1)}.experience--pathways .chapter-scene-02 .mini-path{transform:rotate(-8deg)}.experience--pathways .chapter-scene-03 .mini-path{filter:hue-rotate(32deg)}.experience--pathways .chapter-scene-04 .mini-path{transform:scale(.88)}
+  .hero-copy h1{clip-path:inset(0 0 100% 0);animation:type-reveal .9s .12s cubic-bezier(.2,.75,.2,1) both}.experience--terrain .hero-copy h1{ text-shadow:1px 0 #c6a85b52,-1px 0 #c6a85b2e}.experience--water .hero-copy h1{animation:fluid-reveal 1s .1s cubic-bezier(.2,.7,.2,1) both}.experience--care .hero-copy h1{animation:network-reveal .8s .1s both}.experience--pathways .hero-copy h1{animation:path-reveal .9s .08s both}
+  .visual-stage>.terrain-art,.visual-stage>.water-art,.visual-stage>.care-art,.visual-stage>.path-art{translate:0 var(--scene-travel,0px)}.chapter-visual{translate:0 var(--chapter-travel,0px)}
+  .experience .chapter.is-visible[data-transition-kind="fracture"] .chapter-visual{animation:fracture-reform .82s cubic-bezier(.2,.75,.18,1) both}.experience .chapter.is-visible[data-transition-kind="fluid"] .chapter-visual{animation:fluid-reveal 1.05s cubic-bezier(.22,.7,.18,1) both}.experience .chapter.is-visible[data-transition-kind="network"] .chapter-visual{animation:network-reveal .78s cubic-bezier(.2,.7,.18,1) both}.experience .chapter.is-visible[data-transition-kind="pathways"] .chapter-visual{animation:path-reveal .82s cubic-bezier(.2,.7,.18,1) both}.experience .chapter.is-visible[data-transition-kind="typographic"] .chapter-visual{animation:type-reveal .76s cubic-bezier(.2,.7,.2,1) both}.experience .chapter.is-visible[data-transition-kind="gold-dust"] .chapter-visual{animation:gold-reveal .92s ease-out both}.experience .chapter[data-transition-kind="gold-dust"] .chapter-visual:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,#d6bb7888 0 1px,transparent 2px);background-size:31px 29px;opacity:0}.experience .chapter.is-visible[data-transition-kind="gold-dust"] .chapter-visual:after{animation:gold-particles .9s ease-out both}.experience .chapter-copy h2{clip-path:none;animation:none}.experience .chapter.is-visible[data-transition-kind="fracture"] .chapter-copy h2{animation:fracture-title .72s ease-out both}.experience .chapter.is-visible[data-transition-kind="fluid"] .chapter-copy h2{animation:fluid-title .84s ease-out both}.experience .chapter.is-visible[data-transition-kind="network"] .chapter-copy h2{animation:network-reveal .72s ease-out both}.experience .chapter.is-visible[data-transition-kind="pathways"] .chapter-copy h2{animation:path-reveal .72s ease-out both}.experience .chapter.is-visible[data-transition-kind="typographic"] .chapter-copy h2{animation:type-reveal .72s ease-out both}.experience .chapter.is-visible[data-transition-kind="gold-dust"] .chapter-copy h2{animation:gold-title .86s ease-out both}
+  .transition-curtain{position:fixed;z-index:999;inset:0;display:grid;place-items:center;overflow:hidden;pointer-events:none;visibility:hidden;background:#181a17;transform:translateY(103%)}.transition-curtain.is-active{visibility:visible;animation:curtain-up .46s cubic-bezier(.7,0,.2,1) forwards}.curtain-word{position:relative;z-index:2;color:#f4eddb;font:500 clamp(30px,8vw,100px)/.9 var(--font-serif,Georgia,serif);letter-spacing:.06em;opacity:0;transform:translateY(25px)}.transition-curtain.is-active .curtain-word{animation:curtain-type .38s .06s ease-out forwards}.transition-curtain i{position:absolute;width:4px;height:4px;border-radius:50%;background:#c5a76b;opacity:0;box-shadow:0 0 14px #d2b875}.transition-curtain i:nth-of-type(1){left:14%;top:29%}.transition-curtain i:nth-of-type(2){left:27%;top:73%}.transition-curtain i:nth-of-type(3){left:39%;top:19%}.transition-curtain i:nth-of-type(4){left:53%;top:82%}.transition-curtain i:nth-of-type(5){left:68%;top:32%}.transition-curtain i:nth-of-type(6){left:81%;top:68%}.transition-curtain i:nth-of-type(7){left:90%;top:24%}.transition-curtain i:nth-of-type(8){left:19%;top:53%}.transition-curtain i:nth-of-type(9){left:48%;top:44%}.transition-curtain i:nth-of-type(10){left:73%;top:54%}.transition-curtain i:nth-of-type(11){left:61%;top:16%}.transition-curtain i:nth-of-type(12){left:34%;top:88%}.transition-curtain[data-style="fracture"]{background-color:#28291e;background-image:repeating-linear-gradient(132deg,transparent 0 19px,#c6aa6d12 20px 21px,transparent 22px 39px);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}.transition-curtain[data-style="fracture"].is-active{animation:fracture-curtain .46s ease-in forwards}.transition-curtain[data-style="fracture"] i{animation:dust-flight .46s ease-out forwards}.transition-curtain[data-style="fluid"]{background:radial-gradient(ellipse at 50% 110%,#287380,#0b2530 70%);border-radius:50% 50% 0 0/14% 14% 0 0;transform:translateY(103%) scale(.8)}.transition-curtain[data-style="fluid"].is-active{animation:fluid-curtain .46s cubic-bezier(.16,.82,.18,1) forwards}.transition-curtain[data-style="network"]{background-color:#15252b;background-image:radial-gradient(circle at center,#98c3ac22 1px,transparent 2px),linear-gradient(120deg,transparent 48%,#9fc6ad22 49%,transparent 50%);background-size:46px 46px,120px 120px;transform:scaleX(0);transform-origin:left}.transition-curtain[data-style="network"].is-active{animation:network-curtain .42s ease-in forwards}.transition-curtain[data-style="typographic"]{background:#191a2c}.transition-curtain[data-style="typographic"] .curtain-word{font-size:clamp(40px,12vw,160px);font-style:italic;white-space:nowrap}.transition-curtain[data-style="typographic"].is-active{animation:type-curtain .46s cubic-bezier(.2,.7,.2,1) forwards}
+  .experience.is-entering[data-entry-transition="fracture"] .experience-hero{animation:fracture-reform .85s ease-out both}.experience.is-entering[data-entry-transition="fluid"] .experience-hero{animation:fluid-reveal .9s ease-out both}.experience.is-entering[data-entry-transition="network"] .experience-hero{animation:network-reveal .8s ease-out both}.experience.is-entering[data-entry-transition="typographic"] .experience-hero{animation:type-reveal .75s ease-out both}
+  @keyframes fracture-reform{0%{opacity:0;clip-path:polygon(0 0,100% 0,100% 22%,0 30%,100% 42%,0 53%,100% 67%,0 77%,100% 90%,100% 100%,0 100%);transform:translateY(18px) rotateX(7deg)}60%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}100%{opacity:1;transform:none}}@keyframes fracture-title{from{opacity:0;filter:blur(5px);transform:translateX(-15px)}to{opacity:1;filter:none;transform:none}}@keyframes fluid-title{from{opacity:0;clip-path:ellipse(0 0 at 50% 50%);filter:blur(4px)}to{opacity:1;clip-path:ellipse(100% 100% at 50% 50%);filter:none}}@keyframes gold-reveal{0%{opacity:0;filter:brightness(2);transform:translateY(8px) scale(.98)}60%{opacity:1;filter:brightness(1.25)}100%{filter:none;transform:none}}@keyframes gold-particles{0%{opacity:0;background-position:0 18px}35%{opacity:.8}100%{opacity:.1;background-position:18px -12px}}@keyframes gold-title{0%{opacity:0;filter:blur(5px);text-shadow:0 0 22px #d5b87899}100%{opacity:1;filter:none;text-shadow:none}}
+  @keyframes fluid-reveal{0%{opacity:0;clip-path:ellipse(30% 12% at 50% 55%);filter:blur(5px);transform:scale(.97)}65%{clip-path:ellipse(90% 80% at 50% 50%);filter:blur(0)}100%{opacity:1;clip-path:ellipse(100% 100% at 50% 50%);transform:none}}
+  @keyframes network-reveal{0%{opacity:0;transform:translateY(18px) scale(.98);filter:blur(3px)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes path-reveal{0%{opacity:0;transform:perspective(900px) rotateY(12deg) translateX(24px);clip-path:inset(0 100% 0 0)}100%{opacity:1;transform:none;clip-path:inset(0)}}
+  @keyframes type-reveal{0%{clip-path:inset(0 0 100% 0);transform:translateY(14px);opacity:0}100%{clip-path:inset(0);transform:none;opacity:1}}
+  @keyframes curtain-up{to{transform:translateY(0)}}@keyframes curtain-type{to{opacity:1;transform:none}}@keyframes fracture-curtain{0%{transform:translateY(103%);clip-path:polygon(0 0,100% 0,100% 85%,0 100%)}100%{transform:translateY(0);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}}@keyframes fluid-curtain{to{transform:translateY(0) scale(1);border-radius:0}}@keyframes network-curtain{to{transform:scaleX(1)}}@keyframes type-curtain{0%{transform:translateY(103%);clip-path:inset(48% 0)}100%{transform:translateY(0);clip-path:inset(0)}}@keyframes dust-flight{from{opacity:0;transform:translateY(20px) scale(.5)}to{opacity:.9;transform:translateY(-5px) scale(1)}}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}.reveal.is-visible{opacity:1;transform:none}
+  @keyframes scan{0%,100%{top:19%;opacity:.35}50%{top:76%;opacity:.9}}@keyframes mask-breathe{to{transform:translate3d(12px,-8px,0) scale(1.04);filter:drop-shadow(0 0 25px #d4ae6b99)}}@keyframes ripple{0%{transform:translate(-50%,-50%) scale(.7);opacity:.7}100%{transform:translate(-50%,-50%) scale(1.45);opacity:0}}@keyframes ripple-drift{to{transform:rotate(360deg)}}@keyframes float-orb{50%{transform:translate3d(12px,-16px,20px)}}@keyframes dash{to{stroke-dashoffset:-160}}@keyframes water-shape{to{border-radius:52% 48% 55% 45%}}@keyframes line-arrive{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media(max-width:950px){.experience-hero{grid-template-columns:1fr;min-height:0;gap:34px;padding-top:65px}.hero-copy{max-width:750px}.visual-stage{height:min(66vw,560px);min-height:360px}.hero-bottom{margin-top:10px}.chapter-layout{grid-template-columns:140px minmax(0,1fr);gap:32px}.chapter{grid-template-columns:1fr}.chapter-visual{min-height:170px}.chapter-number{left:-30px}.chapter-rail a{font-size:10px}.chapter-rail{top:22px}}
+  @media(max-width:640px){.experience-nav{height:64px;padding:0 20px}.wordmark{font-size:8px;letter-spacing:.13em}.wordmark-mark{width:28px;height:28px}.return-link{font-size:12px}.experience-hero{padding:48px 20px 24px;gap:25px}.hero-copy h1{font-size:clamp(46px,14vw,74px)}.hero-deck{font-size:17px}.hero-actions{margin:25px 0;gap:16px;flex-wrap:wrap}.hero-tags span{font-size:8px}.visual-stage{height:390px;min-height:0}.terrain-art,.water-art,.care-art,.path-art{inset:28px 0 8px}.annotation,.coordinate{font-size:6px}.terrain-caption,.water-caption{font-size:6px}.care-panel{width:142px;padding:12px}.care-panel b{font-size:15px}.panel-patient{left:4%;top:14%}.panel-appointment{right:3%;top:25%}.panel-admission{left:15%;bottom:12%}.care-hub{width:76px;height:76px;left:calc(50% - 38px);top:calc(48% - 38px)}.care-rail{display:none}.care-caption{font-size:6px}.path-label{font-size:6px}.path-equation{font-size:10px}.path-caption{max-width:47%;text-align:right;font-size:6px}.hero-bottom{font-size:7px;padding-top:20px}.story-intro{padding:82px 22px;grid-template-columns:1fr;gap:22px}.story-intro>p{font-size:16px}.chapter-layout{display:block;padding:0 22px 80px}.chapter-rail{position:relative;top:auto;flex-direction:row;overflow-x:auto;gap:14px;padding:14px 0 18px;margin:0 -22px 8px;padding-left:22px;border-bottom:1px solid var(--line);scrollbar-width:thin}.rail-label{display:none}.chapter-rail a{flex:0 0 auto;gap:6px;font-size:10px;padding:6px 0}.chapter-rail i{font-size:8px}.chapter{padding:42px 0 54px;gap:23px}.chapter-number{position:static;grid-column:1/-1;display:flex;align-items:center;gap:10px}.chapter-number span{width:35px;margin:0}.chapter-copy .eyebrow{margin-bottom:12px}.chapter h2{font-size:36px}.chapter-copy>p:not(.eyebrow){font-size:14px}.chapter-visual{min-height:150px}.metric-strip{gap:8px}.metric-strip strong{font-size:18px}.metric-strip span{font-size:7px}.agent-sequence{font-size:7px;gap:6px}.evidence-gallery{padding:40px 0 56px}.evidence-grid{grid-template-columns:1fr}.evidence-figure.evidence-wide{grid-column:auto;display:flex}.evidence-figure img{max-height:340px}.evidence-figure:not(.evidence-wide) img{height:auto;min-height:0;max-height:280px}.project-resources{padding:44px 0 56px}.resource-links a{font-size:12px}.project-switcher{padding:22px 20px 38px;grid-template-columns:1fr 1fr}.project-switcher .switcher-home{grid-column:1/-1;grid-row:1;text-align:center}.project-switcher a b{font-size:12px}.project-switcher a span{font-size:7px}.project-switcher .next-story{text-align:right}}
+  @media(max-width:640px){.experience .hero-copy h1{font-size:clamp(40px,12vw,58px);letter-spacing:-.025em}.hero-copy .eyebrow{font-size:8px;letter-spacing:.12em}.water-art{bottom:56px}.agent-detail{bottom:4px;max-width:88%;font-size:7px;padding:6px 7px}.node-market{bottom:24%}.care-detail{bottom:7px}.care-caption{top:10px;bottom:auto;max-width:65%}.algorithm-controls{bottom:23px}}
+  .chapter-visual{transform:perspective(1100px) translateZ(var(--chapter-depth,0px)) rotateY(var(--chapter-tilt,0deg));transition:box-shadow .35s ease,border-color .35s ease;will-change:transform}
+  .chapter.is-visible .chapter-visual{box-shadow:0 24px 58px #17101b1a}
+  .chapter-evidence{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;opacity:.78;clip-path:inset(0 var(--mask-inset,100%) 0 0);mix-blend-mode:screen;transition:clip-path .12s linear}
+  .chapter-visual-terrain .mini-terrain{z-index:1;inset:24px 8px 8px;opacity:.84;transform:translateY(var(--terrain-shift,0px)) scale(var(--terrain-scale,1));transition:transform .15s linear,opacity .15s linear}
+  .chapter-visual-terrain .mini-terrain:before,.chapter-visual-terrain .mini-terrain:after{background-position:0 calc(var(--chapter-progress,.5)*22px);filter:drop-shadow(0 0 4px #bfa36c44)}
+  .chapter-visual-terrain .mini-terrain b{transform:translateY(var(--fault-shift,0px)) rotate(var(--fault-rotate,0deg));transition:transform .12s linear}
+  .chapter-visual-water .mini-water:before,.chapter-visual-water .mini-water:after{transform:scale(var(--ripple-core-scale,1));opacity:.42;transition:transform .12s linear,opacity .12s linear}
+  .chapter-visual-water .mini-water i{position:absolute;left:50%;top:50%;width:var(--ripple-size-a,80px);aspect-ratio:1;border:1px solid var(--accent);border-radius:50%;opacity:var(--ripple-opacity-a,.5);transform:translate(-50%,-50%);transition:all .12s linear}
+  .chapter-visual-water .mini-water i:nth-child(2){width:var(--ripple-size-b,110px);opacity:var(--ripple-opacity-b,.3)}
+  .chapter-visual-water .mini-water i:nth-child(3){width:var(--ripple-size-c,140px);opacity:var(--ripple-opacity-c,.18)}
+  .chapter-visual-care .mini-care{transform:translateY(calc((.5 - var(--chapter-progress,.5))*14px));transition:transform .12s linear}
+  .chapter-visual-care .mini-care i{border-color:color-mix(in srgb,var(--accent) 48%,transparent);box-shadow:0 7px 20px #283f3810}
+  .chapter-visual-care .mini-care b{color:var(--accent)}
+  .chapter-visual-pathways .mini-path b{background:linear-gradient(90deg,var(--accent) var(--path-fill,0%),#a7a7bf33 0);background-clip:text;color:transparent;transition:background .12s linear}
+  .experience--pathways .path-lit path{stroke-dasharray:900;stroke-dashoffset:var(--route-offset,900px);transition:stroke-dashoffset .14s linear,opacity .2s}
+  .experience--water .agent-lines path{stroke-dashoffset:0;transition:stroke-dashoffset .12s linear}
+  .experience--water .water-ripple{animation-play-state:paused;scale:var(--water-ripple-scale,1)}
+  .experience--water .agent-lines{transform:translateY(var(--water-travel,0px))}
+  .experience--terrain .terrain-mask{animation:none;transform:translateX(var(--mask-travel,0px)) rotate(var(--mask-rotation,0deg));transition:transform .12s linear}
+  .experience--terrain .terrain-contours{background-position:0 var(--contour-travel,0px);transform:rotate(var(--contour-rotation,-8deg)) scale(var(--contour-scale,1))}
+  .experience--care .care-rail{scale:var(--care-scale,.35) 1;transition:scale .12s linear}
+  @media(prefers-reduced-motion:reduce){.chapter-visual{transform:none!important;will-change:auto}.chapter-evidence{clip-path:none;opacity:.25}.experience *, .experience *:before,.experience *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+</style>

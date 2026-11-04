@@ -1,0 +1,10 @@
+---
+import AtelierLayout from '../layouts/AtelierLayout.astro';
+---
+<AtelierLayout title="Page not found | The Digital Atelier" description="The requested portfolio page could not be found.">
+  <section class="atelier-container" style="min-height:65vh;padding-top:10rem;text-align:center">
+    <p class="atelier-badge">404 // PAGE NOT FOUND</p>
+    <h1 class="editorial-title">This page is not in the collection.</h1>
+    <a class="btn-atelier-primary" href={import.meta.env.BASE_URL}>Return to the portfolio</a>
+  </section>
+</AtelierLayout>

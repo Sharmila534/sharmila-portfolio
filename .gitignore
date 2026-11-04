@@ -1,0 +1,17 @@
+# Dependencies and generated output
+node_modules/
+dist/
+.astro/
+.vercel/
+
+# Local environment and secret material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Private source documents; the downloadable copy under public/ is intentionally public
+/details.docx
+/Sai_Sharmila_Kinjarapu_Resume_Master.pdf
+/WhatsApp Video 2026-11-01 at 2.29.41 PM.mp4
