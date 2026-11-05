@@ -38,14 +38,14 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
               <span>Download Latest Resume (PDF)</span>
             </a>
 
-            <button type="button" class="btn-atelier-secondary" onclick="window.print()">
+            <a href={`${import.meta.env.BASE_URL}resume/`} class="btn-atelier-secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
               </svg>
               <span>Print View</span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
             <div class="block-content">
               <p>• <strong>TerraSeg AI:</strong> Multi-dataset satellite landslide segmentation research prototype with an implemented Gradio patch-inspection interface; broader workflow consolidation is in progress.</p>
               <p>• <strong>AquaGuard AI:</strong> Multi-agent aquaculture decision-support prototype (Google Gemini).</p>
-              <p>• <strong>HMS:</strong> Full-stack learning prototype with Flask, MongoDB, and LLM prompting.</p>
+              <p>• <strong>HMS:</strong> Flask and MongoDB learning prototype with role-based appointment, patient-record, and staff workflows.</p>
               <p>• <strong>AI Planning:</strong> Classical search algorithms (A*, Minimax, BFS) and PDDL.</p>
             </div>
           </div>
@@ -207,5 +207,16 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
     .res-action-group { width: 100%; }
     .res-download-btn { width: 100%; }
   }
+  .resume-stamp,.res-doc-type,.block-title{font-size:.78rem;letter-spacing:.09em}
+  .resume-lead{max-width:68ch;font-size:clamp(1.0625rem,.35vw + 1rem,1.2rem);line-height:1.72;color:#665560}
+  .resume-card{padding:clamp(1.5rem,4vw,3.25rem);border-color:rgba(197,143,125,.48)}
+  .res-cand-name{font-family:var(--font-serif);font-size:clamp(1.65rem,2.5vw,2.15rem);line-height:1.15}
+  .res-cand-sub{display:block;margin-top:.25rem;font-size:.95rem;line-height:1.55}
+  .res-action-group{align-items:center}
+  .res-action-group>a{min-height:48px}
+  .res-preview-grid{gap:clamp(1rem,2.2vw,1.75rem)}
+  .res-block{padding:clamp(1.1rem,2vw,1.65rem);background:rgba(255,253,250,.82);box-shadow:0 12px 30px -28px rgba(42,22,37,.4)}
+  .block-content{font-size:.94rem;line-height:1.72}
+  @media(max-width:600px){.resume-card-header{gap:1.1rem}.res-cand-name{font-size:1.55rem}.res-action-group{display:grid;grid-template-columns:1fr}.res-action-group>a{width:100%;padding-inline:1rem}.res-block{border-radius:14px}}
   @media (prefers-reduced-motion: reduce) { .resume-card, .resume-card:hover { transform: none; } .resume-section::before { animation: none; } }
 </style>

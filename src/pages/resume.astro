@@ -116,7 +116,7 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
         <!-- HMS -->
         <div class="entry">
           <div class="entry-row">
-            <strong>Hospital Management System (HMS) | LLM Prompting & Learning Prototype</strong>
+            <strong>Hospital Management System (HMS) | Flask & MongoDB Learning Prototype</strong>
             <span>Learning Prototype</span>
           </div>
           <ul class="entry-list">
@@ -279,13 +279,27 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
 
   @media print {
     body { background: #FFFFFF !important; }
-    .no-print, header, footer, .atelier-grain, .btn-recruiter-pill { display: none !important; }
+    .no-print, .atelier-header, footer, .atelier-grain, .btn-recruiter-pill { display: none !important; }
+    #main-content { margin: 0 !important; padding: 0 !important; }
+    .resume-page-container { max-width: none !important; width: 100% !important; }
     .resume-page-container { padding: 0 !important; }
     .resume-sheet {
       box-shadow: none !important;
       border: none !important;
       padding: 0 !important;
       max-width: 100% !important;
+      width: 100% !important;
+      color: #1a1a1a !important;
+      background: #fff !important;
+      font-size: 10pt !important;
+      line-height: 1.4 !important;
+      break-inside: auto;
+      page-break-inside: auto;
     }
+    .sheet-header, .sheet-section, .entry, .entry-row, .entry-list li { break-inside: avoid; page-break-inside: avoid; }
+    .sheet-header { display: block !important; }
+    a { color: #1a1a1a !important; text-decoration: none !important; }
+    h1, h2, h3, h4 { color: #231b24 !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>

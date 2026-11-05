@@ -120,6 +120,21 @@ const artwork = (id: string) => {
     const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]')];
     const countLabel = root.querySelector<HTMLElement>('[data-carousel-count]');
     const announcement = root.querySelector<HTMLElement>('[data-carousel-announcement]');
+    const lifecycle = new AbortController();
+    const { signal } = lifecycle;
+    let navigationTimer = 0;
+    let wheelTimer = 0;
+    let transitionTimer = 0;
+    let returnFrame = 0;
+    let returnAnimation: Animation | null = null;
+    window.addEventListener('pagehide', () => {
+      lifecycle.abort();
+      window.clearTimeout(navigationTimer);
+      window.clearTimeout(wheelTimer);
+      window.clearTimeout(transitionTimer);
+      if (returnFrame) cancelAnimationFrame(returnFrame);
+      returnAnimation?.cancel();
+    }, { once: true });
     let active = 0;
     try {
       const returnId = sessionStorage.getItem('atelier-story-return');
@@ -145,9 +160,10 @@ const artwork = (id: string) => {
       const artSrc = artImage?.getAttribute('src') || (artSvg ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(artSvg))}` : '');
       const projectId = panel.dataset.projectId || '';
       const storyState = { projectId, activeIndex: Number(panel.dataset.carouselIndex || 0), artSrc, returnHash: '#projects' };
-      try { sessionStorage.setItem('atelier-story-transition', JSON.stringify(storyState)); } catch { /* Navigation remains available without storage. */ }
+      try { sessionStorage.setItem('atelier-story-transition', JSON.stringify(storyState)); sessionStorage.removeItem('atelier-entry-transition'); } catch { /* Navigation remains available without storage. */ }
       const overlay = document.createElement('div');
       overlay.className = 'story-flight';
+      overlay.dataset.projectId = projectId;
       overlay.setAttribute('aria-hidden', 'true');
       const flight = panel.cloneNode(true) as HTMLElement;
       flight.className = 'story-flight-panel';
@@ -155,9 +171,9 @@ const artwork = (id: string) => {
       flight.querySelector('.panel-content')?.remove();
       flight.querySelector('.artwork-index')?.remove();
       const fragments = Array.from({ length: 5 }, (_, i) => `<i class="flight-fragment fragment-${i + 1}"></i>`).join('');
-      const particles = Array.from({ length: 28 }, (_, i) => `<i class="flight-particle" style="--i:${i};--delay:${(i % 7) * 24}ms"></i>`).join('');
+      const particles = Array.from({ length: 16 }, (_, i) => `<i class="flight-particle" style="--i:${i};--delay:${(i % 6) * 22}ms"></i>`).join('');
       const startX = rect.left, startY = rect.top, startW = rect.width, startH = rect.height;
-      Object.assign(flight.style, { left: `${startX}px`, top: `${startY}px`, width: `${startW}px`, height: `${startH}px`, transform: 'perspective(1500px) translateZ(0) rotateY(0deg)', transition: 'left 900ms cubic-bezier(.18,.8,.16,1), top 900ms cubic-bezier(.18,.8,.16,1), width 900ms cubic-bezier(.18,.8,.16,1), height 900ms cubic-bezier(.18,.8,.16,1), transform 900ms cubic-bezier(.18,.8,.16,1)' });
+      Object.assign(flight.style, { left: `${startX}px`, top: `${startY}px`, width: `${startW}px`, height: `${startH}px`, transformOrigin: 'center center', transform: 'perspective(1500px) translate3d(0,0,0) scale(1)', borderRadius: '3px', transition: 'transform 760ms cubic-bezier(.2,.78,.18,1), border-radius 760ms ease, box-shadow 760ms ease' });
       overlay.append(flight);
       overlay.insertAdjacentHTML('beforeend', `${fragments}${particles}`);
       const edgePoints = [
@@ -181,9 +197,11 @@ const artwork = (id: string) => {
       document.documentElement.classList.add('story-flight-active');
       requestAnimationFrame(() => requestAnimationFrame(() => {
         overlay.classList.add('is-expanding');
-        Object.assign(flight.style, { left: '0px', top: '0px', width: '100vw', height: '100vh', transform: 'perspective(1500px) translateZ(180px) rotateY(0deg)' });
+        const targetX = innerWidth / 2 - (startX + startW / 2);
+        const targetY = innerHeight / 2 - (startY + startH / 2);
+        Object.assign(flight.style, { transform: `perspective(1500px) translate3d(${targetX}px,${targetY}px,180px) scale(${innerWidth / startW},${innerHeight / startH})`, borderRadius: '0px' });
       }));
-      window.setTimeout(() => { window.location.assign(link.href); }, 920);
+      transitionTimer = window.setTimeout(() => { window.location.assign(link.href); }, 790);
     };
 
     // Five visible slots make the orbit legible even though the data set has four projects.
@@ -264,14 +282,15 @@ const artwork = (id: string) => {
       const direction = directionHint || (forwardDistance <= count / 2 ? 1 : -1);
       const steps = directionHint ? (directionHint > 0 ? forwardDistance : modulo(active - next, count)) : Math.min(forwardDistance, count - forwardDistance);
       const token = ++navigationToken;
+      window.clearTimeout(navigationTimer);
       root.setAttribute('aria-busy', 'true');
       let step = 0;
       const advance = () => {
         if (token !== navigationToken) return;
         step += 1;
         stepRing(direction, announce && step === steps);
-        if (step < steps) window.setTimeout(advance, 300);
-        else root.removeAttribute('aria-busy');
+        if (step < steps) navigationTimer = window.setTimeout(advance, 300);
+        else { navigationTimer = 0; root.removeAttribute('aria-busy'); }
       };
       advance();
     };
@@ -283,26 +302,31 @@ const artwork = (id: string) => {
     try {
       if (sessionStorage.getItem('atelier-story-return')) {
         sessionStorage.removeItem('atelier-story-return');
+        sessionStorage.removeItem('atelier-entry-transition');
         const savedArt = sessionStorage.getItem('atelier-story-artwork') || '';
         sessionStorage.removeItem('atelier-story-artwork');
-        window.setTimeout(() => {
+        navigationTimer = window.setTimeout(() => {
           const selected = track.querySelector<HTMLElement>('.is-active');
           if (!selected) return;
-          selected.scrollIntoView({ block: 'center', behavior: prefersReduced.matches ? 'auto' : 'smooth' });
+          selected.scrollIntoView({ block: 'center', behavior: 'instant' });
           if (prefersReduced.matches) return;
-          window.setTimeout(() => {
+          returnFrame = requestAnimationFrame(() => { returnFrame = requestAnimationFrame(() => {
             const rect = selected.getBoundingClientRect();
             const reverse = document.createElement('div'); reverse.className = 'story-return-flight'; reverse.setAttribute('aria-hidden','true');
             if (savedArt.startsWith('data:image/svg+xml') || (savedArt.startsWith('/') && savedArt.includes('/images/atelier/'))) { const image = document.createElement('img'); image.src = savedArt; reverse.append(image); }
             document.body.append(reverse);
-            reverse.animate([{ clipPath:'inset(0 0 0 0)', opacity:1 },{ clipPath:`inset(${rect.top}px ${innerWidth-rect.right}px ${innerHeight-rect.bottom}px ${rect.left}px round 3px)`, opacity:0 }],{duration:850,easing:'cubic-bezier(.2,.75,.18,1)',fill:'forwards'}).finished.finally(()=>reverse.remove());
-          }, 120);
-        }, 160);
+            const x = rect.left + rect.width / 2 - innerWidth / 2;
+            const y = rect.top + rect.height / 2 - innerHeight / 2;
+            const transform = `translate3d(${x}px,${y}px,0) scale(${rect.width / innerWidth},${rect.height / innerHeight})`;
+            returnAnimation = reverse.animate([{ transform:'translate3d(0,0,0) scale(1)', borderRadius:'0px', opacity:1 },{ transform, borderRadius:'3px', opacity:.08 }],{duration:760,easing:'cubic-bezier(.2,.78,.18,1)',fill:'forwards'});
+            returnAnimation.finished.then(()=>reverse.remove(),()=>reverse.remove());
+          }); });
+        }, 80);
       }
     } catch { /* The restored slide remains selected without the reversal overlay. */ }
-    root.querySelector('[data-carousel-prev]')?.addEventListener('click', () => select(active - 1));
-    root.querySelector('[data-carousel-next]')?.addEventListener('click', () => select(active + 1));
-    dots.forEach((dot, index) => dot.addEventListener('click', () => select(index)));
+    root.querySelector('[data-carousel-prev]')?.addEventListener('click', () => select(active - 1), { signal });
+    root.querySelector('[data-carousel-next]')?.addEventListener('click', () => select(active + 1), { signal });
+    dots.forEach((dot, index) => dot.addEventListener('click', () => select(index), { signal }));
 
     stage.addEventListener('click', event => {
       const target = event.target as HTMLElement;
@@ -316,25 +340,25 @@ const artwork = (id: string) => {
         event.stopPropagation();
         select(modulo(active + offset, count), true, Math.sign(offset));
       }
-    });
+    }, { signal });
     stage.addEventListener('keydown', event => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.key === 'ArrowRight') { event.preventDefault(); select(active + 1); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); select(active - 1); }
       if (event.key === 'Home') { event.preventDefault(); select(0); }
       if (event.key === 'End') { event.preventDefault(); select(count - 1); }
-    });
+    }, { signal });
     stage.addEventListener('pointerdown', event => {
       if (event.pointerType !== 'touch') return;
       touchStartX = event.clientX;
       touchStartY = event.clientY;
-    }, { passive: true });
+    }, { passive: true, signal });
     stage.addEventListener('pointerup', event => {
       if (event.pointerType !== 'touch') return;
       const dx = event.clientX - touchStartX;
       const dy = event.clientY - touchStartY;
       if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.25) select(active + (dx < 0 ? 1 : -1));
-    }, { passive: true });
+    }, { passive: true, signal });
     stage.addEventListener('pointermove', event => {
       if (prefersReduced.matches || event.pointerType !== 'mouse') return;
       const bounds = stage.getBoundingClientRect();
@@ -342,22 +366,22 @@ const artwork = (id: string) => {
       pointerY = (event.clientY - bounds.top) / bounds.height - .5;
       stage.style.setProperty('--pointer-x', `${(pointerX * 4).toFixed(2)}px`);
       stage.style.setProperty('--pointer-y', `${(pointerY * -3).toFixed(2)}px`);
-    }, { passive: true });
+    }, { passive: true, signal });
     stage.addEventListener('pointerleave', () => {
       stage.style.setProperty('--pointer-x', '0px');
       stage.style.setProperty('--pointer-y', '0px');
-    }, { passive: true });
+    }, { passive: true, signal });
     stage.addEventListener('wheel', event => {
       if (prefersReduced.matches || wheelLocked || Math.abs(event.deltaX) < Math.abs(event.deltaY) * .65) return;
       if (Math.abs(event.deltaX) < 32) return;
       event.preventDefault();
       wheelLocked = true;
       select(active + (event.deltaX > 0 ? 1 : -1));
-      window.setTimeout(() => { wheelLocked = false; }, 760);
-    }, { passive: false });
+      wheelTimer = window.setTimeout(() => { wheelLocked = false; }, 760);
+    }, { passive: false, signal });
     prefersReduced.addEventListener?.('change', () => {
       if (prefersReduced.matches) { stage.style.setProperty('--pointer-x', '0px'); stage.style.setProperty('--pointer-y', '0px'); }
-    });
+    }, { signal });
   });
 </script>
 
@@ -452,7 +476,20 @@ const artwork = (id: string) => {
   .carousel-arrows button:hover { transform:translateY(-2px); border-color:rgba(220,189,182,.65); color:#241c29; background:#d9c2bd; }
   .carousel-arrows button span { font:17px Arial,sans-serif; }
   .carousel-announcement { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-  .story-flight { position:fixed; z-index:20000; inset:0; overflow:hidden; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,#3b2a3e,#17131b 74%); animation:flight-backdrop 900ms ease-out both; }
+  .story-flight { position:fixed; z-index:20000; inset:0; overflow:hidden; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,#3b2a3e,#17131b 74%); animation:flight-backdrop 760ms ease-out both; }
+  .story-flight[data-project-id="terraseg-ai"]{background:radial-gradient(ellipse at 50% 45%,#34372a,#121714 76%)}
+  .story-flight[data-project-id="aquaguard-ai"]{background:radial-gradient(ellipse at 50% 50%,#14505b,#071a22 76%)}
+  .story-flight[data-project-id="hospital-management-system"]{background:radial-gradient(ellipse at 50% 45%,#273c34,#111d1c 76%)}
+  .story-flight[data-project-id="ai-planning-search"]{background:radial-gradient(ellipse at 50% 45%,#292744,#10121f 76%)}
+  .story-flight[data-project-id="aquaguard-ai"]::before{content:"";position:absolute;z-index:1;left:50%;top:50%;width:min(72vw,720px);aspect-ratio:1;border:1px solid rgba(153,222,214,.35);border-radius:50%;transform:translate(-50%,-50%) scale(.42);opacity:0}
+  .story-flight[data-project-id="aquaguard-ai"].is-expanding::before{animation:flight-ripple 760ms cubic-bezier(.16,.8,.18,1) both}
+  .story-flight[data-project-id="terraseg-ai"] .flight-fragment{height:3px;background:linear-gradient(90deg,transparent,#9f895b,#e4cc96,transparent);box-shadow:0 0 12px #c5a76b55}
+  .story-flight[data-project-id="aquaguard-ai"] .flight-fragment{background:linear-gradient(90deg,transparent,#75c5c0,#d4f2e8,transparent);box-shadow:0 0 12px #75c5c055}
+  .story-flight[data-project-id="hospital-management-system"] .flight-fragment{background:linear-gradient(90deg,transparent,#91b7a3,#e4f0df,transparent);box-shadow:0 0 12px #91b7a355}
+  .story-flight[data-project-id="ai-planning-search"] .flight-fragment{background:linear-gradient(90deg,transparent,#9a93eb,#e6e2ff,transparent);box-shadow:0 0 12px #9a93eb55}
+  .story-flight[data-project-id="aquaguard-ai"] .flight-particle{background:#a6e3db;box-shadow:0 0 6px #a6e3db}
+  .story-flight[data-project-id="hospital-management-system"] .flight-particle{background:#bfd5c7;box-shadow:0 0 6px #bfd5c7}
+  .story-flight[data-project-id="ai-planning-search"] .flight-particle{background:#b7afff;box-shadow:0 0 6px #b7afff}
   .story-flight-panel { position:fixed!important; z-index:2!important; display:block!important; max-width:none!important; max-height:none!important; min-height:0!important; margin:0!important; overflow:hidden!important; border:1px solid rgba(226,197,153,.76)!important; border-radius:2px!important; transform-origin:center!important; box-shadow:0 30px 100px #08060bbf,0 0 38px #c19a6040!important; }
   .story-flight-panel .panel-artwork { position:absolute!important; inset:0!important; width:100%!important; height:100%!important; }
   .story-flight-panel .panel-artwork img,.story-flight-panel .panel-artwork svg { width:100%!important;height:100%!important;object-fit:cover!important;transform:scale(1.04)!important; }
@@ -464,6 +501,7 @@ const artwork = (id: string) => {
   @keyframes flight-backdrop { 0%{background-color:transparent} 100%{background-color:#17131b} }
   @keyframes fragment-shed { 0%{opacity:0;scale:.5} 24%{opacity:.8;scale:1} 100%{opacity:0;translate:var(--tx,42px) var(--ty,-70px);scale:.65} }
   @keyframes fragment-particle { 0%{opacity:0;translate:0 0} 22%{opacity:.9} 78%{opacity:.5} 100%{opacity:0;translate:var(--tx) var(--ty)} }
+  @keyframes flight-ripple{0%{opacity:0;transform:translate(-50%,-50%) scale(.42)}30%{opacity:.55}100%{opacity:0;transform:translate(-50%,-50%) scale(1.16)}}
   .project-carousel:not(.is-ready) .project-carousel-stage { height:auto; min-height:0; perspective:none; }
   .project-carousel:not(.is-ready) .project-track { position:relative; display:grid; gap:18px; }
   .project-carousel:not(.is-ready) .project-panel { position:relative; inset:auto; width:min(100%,850px); min-height:490px; max-height:none; margin:0 auto; transform:none; opacity:1; filter:none; }
@@ -516,4 +554,57 @@ const artwork = (id: string) => {
     .project-carousel *, .project-carousel *::before, .project-carousel *::after { scroll-behavior:auto!important; animation:none!important; transition-duration:.01ms!important; }
     .atmosphere-particle { opacity:.24; }
   }
+  /* Sharpen the active panel while keeping the orbit artwork-led and restrained. */
+  .project-panel.is-active{border-color:rgba(255,248,242,.72);box-shadow:0 46px 100px -38px rgba(4,2,7,.78),0 0 0 1px rgba(255,255,255,.18),inset 0 1px 0 rgba(255,255,255,.96)}
+  .project-panel.is-active .panel-artwork::before{content:"";position:absolute;z-index:2;inset:-30% auto -30% -42%;width:24%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,246,236,.19),transparent);transform:skewX(-18deg);opacity:0}
+  @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+    .project-panel.is-active:hover .panel-artwork::before{opacity:1;animation:artwork-sheen 900ms cubic-bezier(.2,.7,.2,1) both}
+    .project-panel.is-active:hover .panel-artwork img{transform:scale(1.085) translate3d(-.4%,0,0)}
+  }
+  @keyframes artwork-sheen{to{transform:translateX(610%) skewX(-18deg);opacity:0}}
+  .panel-category,.panel-status{font-size:9px}
+  .panel-description{font-size:14px;line-height:1.68;color:#5f5360}
+  .panel-tags span{font-size:9px;padding:6px 9px}
+  .panel-result span,.panel-result small{font-size:9px;line-height:1.5}
+  .panel-result strong{font-size:20px}
+  .panel-scope{font-size:11px;line-height:1.55;color:#6f636f}
+  .panel-story-link{font-size:11px;min-height:38px}
+  .panel-resources a{font-size:9px}
+  @media(max-width:900px){.panel-description{font-size:13px}.panel-scope{font-size:10px}}
+  @media(max-width:600px){
+    .project-carousel-stage{height:620px}
+    .project-panel{min-height:530px;max-height:550px}
+    .panel-artwork{flex-basis:36%;min-height:185px;max-height:195px}
+    .panel-content{padding:18px 18px 16px}
+    .panel-category,.panel-status{font-size:8px}
+    .panel-description{font-size:12px;line-height:1.58;-webkit-line-clamp:2}
+    .panel-tags span{font-size:8px;padding:5px 7px}
+    .panel-result span,.panel-result small{font-size:8px}
+    .panel-scope{font-size:9px;line-height:1.45}
+    .panel-story-link{font-size:9px;min-height:34px}
+    .panel-resources a{font-size:8px}
+    .project-panel.is-active:hover .panel-artwork::before{animation:none}
+  }
+  /* Flight overlays are created at runtime, so their root and generated particles need global selectors. */
+  :global(.story-flight){position:fixed;z-index:20000;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#3b2a3e,#17131b 74%);animation:flight-backdrop 760ms ease-out both;isolation:isolate}
+  :global(.story-flight[data-project-id="terraseg-ai"]){background:radial-gradient(ellipse at 50% 45%,#34372a,#121714 76%)}
+  :global(.story-flight[data-project-id="aquaguard-ai"]){background:radial-gradient(ellipse at 50% 50%,#14505b,#071a22 76%)}
+  :global(.story-flight[data-project-id="hospital-management-system"]){background:radial-gradient(ellipse at 50% 45%,#273c34,#111d1c 76%)}
+  :global(.story-flight[data-project-id="ai-planning-search"]){background:radial-gradient(ellipse at 50% 45%,#292744,#10121f 76%)}
+  :global(.story-flight[data-project-id="aquaguard-ai"]::before){content:"";position:absolute;z-index:1;left:50%;top:50%;width:min(72vw,720px);aspect-ratio:1;border:1px solid rgba(153,222,214,.35);border-radius:50%;transform:translate(-50%,-50%) scale(.42);opacity:0}
+  :global(.story-flight[data-project-id="aquaguard-ai"].is-expanding::before){animation:flight-ripple 760ms cubic-bezier(.16,.8,.18,1) both}
+  :global(.story-flight .flight-fragment){position:absolute;z-index:3;width:clamp(28px,6vw,82px);height:5px;opacity:0;background:linear-gradient(90deg,transparent,#c8aa72,#f2dfb6,transparent);box-shadow:0 0 15px #d7b97c66;transform-origin:left center}
+  :global(.story-flight[data-project-id="terraseg-ai"] .flight-fragment){height:3px;background:linear-gradient(90deg,transparent,#9f895b,#e4cc96,transparent);box-shadow:0 0 12px #c5a76b55}
+  :global(.story-flight[data-project-id="aquaguard-ai"] .flight-fragment){background:linear-gradient(90deg,transparent,#75c5c0,#d4f2e8,transparent);box-shadow:0 0 12px #75c5c055}
+  :global(.story-flight[data-project-id="hospital-management-system"] .flight-fragment){background:linear-gradient(90deg,transparent,#91b7a3,#e4f0df,transparent);box-shadow:0 0 12px #91b7a355}
+  :global(.story-flight[data-project-id="ai-planning-search"] .flight-fragment){background:linear-gradient(90deg,transparent,#9a93eb,#e6e2ff,transparent);box-shadow:0 0 12px #9a93eb55}
+  :global(.story-flight .flight-particle){position:absolute;z-index:4;width:1.5px;height:1.5px;border-radius:50%;opacity:0;background:#e0c58f;box-shadow:0 0 6px #e0c58f}
+  :global(.story-flight[data-project-id="aquaguard-ai"] .flight-particle){background:#a6e3db;box-shadow:0 0 6px #a6e3db}
+  :global(.story-flight[data-project-id="hospital-management-system"] .flight-particle){background:#bfd5c7;box-shadow:0 0 6px #bfd5c7}
+  :global(.story-flight[data-project-id="ai-planning-search"] .flight-particle){background:#b7afff;box-shadow:0 0 6px #b7afff}
+  :global(.story-flight.is-expanding .flight-fragment){animation:fragment-shed 650ms cubic-bezier(.2,.7,.25,1) both}
+  :global(.story-flight.is-expanding .flight-particle){animation:fragment-particle 700ms cubic-bezier(.2,.65,.2,1) calc(var(--delay,0ms) + 80ms) both}
+  :global(.story-return-flight){position:fixed;z-index:20001;inset:0;overflow:hidden;pointer-events:none;background:#1d1720;transform-origin:center center;will-change:transform,opacity}
+  :global(.story-return-flight img){display:block;width:100%;height:100%;object-fit:cover}
+  @media(prefers-reduced-motion:reduce){:global(.story-flight),:global(.story-flight *),:global(.story-return-flight){animation:none!important;transition:none!important}.story-flight{display:none!important}}
 </style>

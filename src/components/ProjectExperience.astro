@@ -45,13 +45,13 @@ const chapters = project.id === 'terraseg-ai'
     ]
   : project.id === 'hospital-management-system'
   ? [
-      ['01', 'Problem & motivation', 'The learning project explores how common administrative tasks can be represented as connected software workflows while learning full-stack structure and data handling.'],
-      ['02', 'System overview', 'The documented scope includes patient records, doctor records, appointment scheduling and basic admission workflows.'],
-      ['03', 'Architecture & technology', 'The project description identifies a Python Flask backend, MongoDB document storage and an HTML/CSS/JavaScript interface.'],
-      ['04', 'Modules & user workflows', 'The supplied details cover patient intake and records, doctor records, appointment scheduling and admission workflow scaffolding.'],
-      ['05', 'Implementation & engineering aid', 'Modular Flask routes connect the documented workflows to MongoDB. LLM prompting was explored as an iterative aid for understanding constraints and code generation.'],
-      ['06', 'Challenges & learning scope', 'The project was used to explore backend organisation, database consistency, and how explicit constraints affect LLM-assisted code generation.'],
-      ['07', 'Limitations', 'This is an academic learning prototype, not a clinical product. No compliance certification, production deployment or clinical use is claimed.']
+      ['01', 'Problem & project scope', 'The project explores how routine hospital administration can be organised through role-specific screens and shared records. Its documented workflows cover account access, appointment coordination, patient information and basic staff administration.', 'This is a learning scaffold; the portfolio presents its intended workflows, not a validated clinical system.'],
+      ['02', 'Application architecture', 'The repository describes a Python Flask application with MongoDB persistence, Flask-Login sessions, Jinja templates and role-specific blueprints. The Flask app registers separate admin, doctor, patient, nurse and receptionist route groups.', 'The checked-in README describes a server-rendered Flask project; it does not describe a separate React frontend.'],
+      ['03', 'Accounts & role access', 'The authentication blueprint supports registration, login and logout. It checks passwords and routes authenticated users to role-specific dashboards for admin, doctor, patient, nurse or receptionist.', 'Route decorators enforce roles on several management pages. This documents application-level access control, not a security audit or production-ready authentication claim.'],
+      ['04', 'Patient appointments & records', 'The patient workflow lets an authenticated patient select a doctor, problem, date and time to request an appointment, then view or cancel appointments. Patient pages also read profile, prescription, billing and report records from MongoDB.', 'The repository exposes these record views; it does not establish clinical validation, billing-provider integration or operational use.'],
+      ['05', 'Doctor & care-team workflows', 'Doctor routes provide an appointment list and add/delete actions, patient list and add/delete actions, profile and salary pages, and a prescription route. Nurse routes expose assignments, shift scheduling, leave requests, salary and profile pages.', 'These are role-specific CRUD and dashboard workflows implemented in the Flask blueprint layer.'],
+      ['06', 'Reception & administration', 'Receptionist routes provide schedule entry and viewing, call-log, profile and salary pages. Admin routes include a dashboard, user management, a rulebook, entry logs and profile; the dashboard reads user/appointment counts and aggregates payment records when available.', 'The README also lists appointments, prescriptions, billing and reports as project areas; the repository should be treated as a scaffold rather than evidence of complete operational workflows.'],
+      ['07', 'Implementation limits & learning', 'The project is an academic Flask/MongoDB scaffold with role-specific templates and database-backed routes. Its source includes demo-oriented configuration defaults and does not document a verified production deployment or clinical validation.', 'Do not use with real patient information. Production use would require a security review, safe secret configuration, privacy and compliance work, and workflow validation.']
     ]
   : [
       ['01', 'Problem definition', 'The coursework turns small planning and game problems into explicit states, actions and goals.'],
@@ -64,7 +64,7 @@ const chapters = project.id === 'terraseg-ai'
 ---
 
 <AtelierLayout title={`${project.title} | Sai Sharmila Kinjarapu`} description={project.tagline}>
-  <div class={`experience experience--${visual}`} data-experience={visual}>
+  <div id="story-top" class={`experience experience--${visual}`} data-experience={visual}>
     <div class="experience-progress" aria-hidden="true"><span></span></div>
     <div class="transition-curtain" data-transition-curtain aria-hidden="true"><span class="curtain-word">NEXT CHAPTER</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <a class="skip-story-transition" href="#story">Skip project entrance</a>
@@ -104,7 +104,7 @@ const chapters = project.id === 'terraseg-ai'
           <div class="care-grid"></div><div class="care-rail rail-a"></div><div class="care-rail rail-b"></div>
           <button type="button" class="care-panel panel-patient" data-care-step="patient" aria-pressed="true"><i>01 / RECORD</i><b>Patient</b><span>Patient record workflow</span><em>Documented scope</em></button>
           <button type="button" class="care-panel panel-appointment" data-care-step="doctor" aria-pressed="false"><i>02 / SCHEDULE</i><b>Doctor</b><span>Doctor records & appointments</span><em>Documented scope</em></button>
-          <button type="button" class="care-panel panel-admission" data-care-step="admission" aria-pressed="false"><i>03 / ADMISSION</i><b>Admission</b><span>Basic admission workflow</span><em>Learning prototype</em></button>
+          <button type="button" class="care-panel panel-admission" data-care-step="staff" aria-pressed="false"><i>03 / CARE TEAM</i><b>Staff</b><span>Role-based staff dashboards</span><em>Documented scope</em></button>
           <div class="care-hub" aria-hidden="true"><span>CARE</span><b>+</b></div><div class="care-caption">DOCUMENTED ADMINISTRATIVE WORKFLOWS</div>
           <p class="care-detail" aria-live="polite">Patient records · part of the documented learning-prototype scope.</p>
         </div>}
@@ -181,6 +181,23 @@ const chapters = project.id === 'terraseg-ai'
 <script>
   const experience = document.querySelector<HTMLElement>('[data-experience]');
   if (experience) {
+    const lifecycle = new AbortController();
+    const { signal } = lifecycle;
+    const timers = new Set<number>();
+    const schedule = (callback: () => void, delay: number) => {
+      const timer = window.setTimeout(() => { timers.delete(timer); callback(); }, delay);
+      timers.add(timer);
+      return timer;
+    };
+    let sceneFrame = 0;
+    let chapterObserver: IntersectionObserver | null = null;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    window.addEventListener('pagehide', () => {
+      lifecycle.abort();
+      timers.forEach(window.clearTimeout);
+      if (sceneFrame) cancelAnimationFrame(sceneFrame);
+      chapterObserver?.disconnect();
+    }, { once: true });
     const progress = experience.querySelector<HTMLElement>('.experience-progress span');
     const stage = experience.querySelector<HTMLElement>('.visual-stage');
     const scrollPaths = [...experience.querySelectorAll<SVGPathElement>('.path-lit path, .agent-lines path')].map(path => ({ path, length: path.getTotalLength() }));
@@ -191,17 +208,24 @@ const chapters = project.id === 'terraseg-ai'
     };
     const updateSceneTravel = () => {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        ['--story-progress','--contour-hide','--water-ripple-scale','--water-travel','--mask-travel','--mask-rotation','--contour-travel','--contour-rotation','--contour-scale','--care-scale'].forEach(name => experience.style.removeProperty(name));
         stage?.style.removeProperty('--scene-travel');
-        experience.querySelectorAll<HTMLElement>('.chapter').forEach((chapter) => { chapter.style.removeProperty('--chapter-travel'); chapter.style.removeProperty('--chapter-progress'); });
-        experience.querySelectorAll<HTMLElement>('.path-lit path').forEach(path => path.style.removeProperty('--route-offset'));
+        stage?.style.removeProperty('--stage-progress');
+        experience.querySelectorAll<HTMLElement>('.chapter').forEach(chapter => ['--chapter-travel','--chapter-progress','--chapter-depth','--chapter-tilt','--mask-inset','--terrain-shift','--terrain-scale','--fault-shift','--fault-rotate','--ripple-size-a','--ripple-size-b','--ripple-size-c','--ripple-opacity-a','--ripple-opacity-b','--ripple-opacity-c','--ripple-core-scale','--workflow-scale','--path-fill'].forEach(name => chapter.style.removeProperty(name)));
+        scrollPaths.forEach(({ path }) => { path.style.removeProperty('stroke-dasharray'); path.style.removeProperty('stroke-dashoffset'); });
+        experience.querySelectorAll<SVGCircleElement>('.path-node').forEach(node => { node.style.removeProperty('opacity'); node.style.removeProperty('transform'); });
         return;
       }
       const height = window.innerHeight;
       const documentRange = document.documentElement.scrollHeight - height;
       experience.style.setProperty('--story-progress', String(documentRange > 0 ? window.scrollY / documentRange : 0));
+      let stageProgress = 0;
       if (stage) {
         const rect = stage.getBoundingClientRect();
         const depth = Math.max(0, Math.min(1, (height - rect.top) / (height + rect.height)));
+        stageProgress = Math.max(0, Math.min(1, (.8 * height - rect.top) / (.55 * height + rect.height)));
+        stage.style.setProperty('--stage-progress', stageProgress.toFixed(3));
+        experience.style.setProperty('--contour-hide', `${(100 - stageProgress * 100).toFixed(1)}%`);
         stage.style.setProperty('--scene-travel', `${depth * -16}px`);
       }
       const chapters = [...experience.querySelectorAll<HTMLElement>('.chapter')];
@@ -240,7 +264,7 @@ const chapters = project.id === 'terraseg-ai'
           if (current) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
         });
       }
-      const sceneProgress = documentRange > 0 ? window.scrollY / documentRange : 0;
+      const sceneProgress = stageProgress;
       experience.style.setProperty('--water-ripple-scale', (1 + sceneProgress * .15).toFixed(3));
       experience.style.setProperty('--water-travel', `${-sceneProgress * 10}px`);
       experience.style.setProperty('--mask-travel', `${sceneProgress * 28}px`);
@@ -250,22 +274,32 @@ const chapters = project.id === 'terraseg-ai'
       experience.style.setProperty('--contour-scale', (1 + sceneProgress * .1).toFixed(3));
       experience.style.setProperty('--care-scale', (.35 + sceneProgress * .65).toFixed(3));
       scrollPaths.forEach(({ path, length }) => { path.style.strokeDasharray = `${length}`; path.style.strokeDashoffset = `${length * (1 - sceneProgress)}`; });
+      const pathArt = experience.querySelector<HTMLElement>('.path-art');
+      if (pathArt) {
+        const routes: Record<string, number[]> = { astar: [0,1,3,5,7], bfs: [0,2,4,6,8], minimax: [0,3,8], pddl: [0,4,7] };
+        const routeNodes = routes[pathArt.dataset.activeAlgorithm ?? 'astar'] ?? routes.astar;
+        experience.querySelectorAll<SVGCircleElement>('.path-node').forEach((node, index) => {
+          const order = routeNodes.indexOf(index);
+          const reached = order >= 0 && stageProgress >= order / Math.max(1, routeNodes.length - 1);
+          node.style.opacity = reached ? '1' : order >= 0 ? '.22' : '.12';
+          node.style.transform = reached ? 'scale(1.16)' : 'scale(.82)';
+        });
+      }
     };
     updateProgress();
     updateSceneTravel();
-    let sceneFrame = 0;
-    window.addEventListener('scroll', () => {
-      updateProgress();
-      if (!sceneFrame) sceneFrame = requestAnimationFrame(() => { updateSceneTravel(); sceneFrame = 0; });
-    }, { passive: true });
-    window.addEventListener('resize', updateSceneTravel, { passive: true });
-    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', updateSceneTravel);
+    const scheduleSceneUpdate = () => {
+      if (!sceneFrame) sceneFrame = requestAnimationFrame(() => { updateProgress(); updateSceneTravel(); sceneFrame = 0; });
+    };
+    window.addEventListener('scroll', scheduleSceneUpdate, { passive: true, signal });
+    window.addEventListener('resize', scheduleSceneUpdate, { passive: true, signal });
+    motionPreference.addEventListener('change', scheduleSceneUpdate, { signal });
     const reveals = experience.querySelectorAll<HTMLElement>('.reveal');
-    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
-        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+    if ('IntersectionObserver' in window && !motionPreference.matches) {
+      chapterObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); chapterObserver?.unobserve(entry.target); }
       }), { threshold: 0.12 });
-      reveals.forEach((item) => observer.observe(item));
+      reveals.forEach((item) => chapterObserver?.observe(item));
     } else reveals.forEach((item) => item.classList.add('is-visible'));
 
     const agentNotes: Record<string, string> = {
@@ -278,18 +312,18 @@ const chapters = project.id === 'terraseg-ai'
     experience.querySelectorAll<HTMLButtonElement>('[data-agent]').forEach((button) => button.addEventListener('click', () => {
       experience.querySelectorAll<HTMLButtonElement>('[data-agent]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
       if (agentDetail) agentDetail.textContent = agentNotes[button.dataset.agent ?? 'root'];
-    }));
+    }, { signal }));
 
     const careNotes: Record<string, string> = {
       patient: 'Patient records · part of the documented learning-prototype scope.',
       doctor: 'Doctor records and appointment scheduling · documented project workflows.',
-      admission: 'Basic admission workflow · academic prototype scaffolding.'
+      staff: 'Staff roles · admin, doctor, nurse and receptionist route groups in the Flask application.'
     };
     const careDetail = experience.querySelector<HTMLElement>('.care-detail');
     experience.querySelectorAll<HTMLButtonElement>('[data-care-step]').forEach((button) => button.addEventListener('click', () => {
       experience.querySelectorAll<HTMLButtonElement>('[data-care-step]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
       if (careDetail) careDetail.textContent = careNotes[button.dataset.careStep ?? 'patient'];
-    }));
+    }, { signal }));
 
     const algorithmNotes: Record<string, string> = {
       astar: 'A* search · 8-puzzle coursework',
@@ -303,14 +337,15 @@ const chapters = project.id === 'terraseg-ai'
       experience.querySelectorAll<HTMLButtonElement>('[data-algorithm]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
       if (algorithmDetail) algorithmDetail.textContent = algorithmNotes[button.dataset.algorithm ?? 'astar'];
       if (pathArt) pathArt.dataset.activeAlgorithm = button.dataset.algorithm ?? 'astar';
-    }));
+      scheduleSceneUpdate();
+    }, { signal }));
 
     const figureTabs = experience.querySelectorAll<HTMLButtonElement>('[data-figure-tab]');
     figureTabs.forEach((tab) => tab.addEventListener('click', () => {
       const key = tab.dataset.figureTab;
       figureTabs.forEach((item) => { item.setAttribute('aria-selected', String(item === tab)); item.tabIndex = item === tab ? 0 : -1; });
       experience.querySelectorAll<HTMLElement>('[data-figure-panel]').forEach((panel) => { panel.hidden = panel.dataset.figurePanel !== key; });
-    }));
+    }, { signal }));
     figureTabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
       const keyEvent = event as KeyboardEvent;
       if (keyEvent.key !== 'ArrowRight' && keyEvent.key !== 'ArrowLeft') return;
@@ -318,7 +353,7 @@ const chapters = project.id === 'terraseg-ai'
       const delta = keyEvent.key === 'ArrowRight' ? 1 : -1;
       const nextTab = figureTabs[(index + delta + figureTabs.length) % figureTabs.length];
       nextTab.focus(); nextTab.click();
-    }));
+    }, { signal }));
 
     const transitionCurtain = experience.querySelector<HTMLElement>('[data-transition-curtain]');
     try {
@@ -328,6 +363,7 @@ const chapters = project.id === 'terraseg-ai'
         sessionStorage.removeItem('atelier-story-transition');
         const arrival = document.createElement('div');
         arrival.className = 'story-arrival';
+        arrival.dataset.projectId = cardEntry.projectId || '';
         arrival.setAttribute('aria-hidden', 'true');
         const image = document.createElement('img');
         if (cardEntry.artSrc?.startsWith('data:image/svg+xml') || (cardEntry.artSrc?.startsWith('/') && cardEntry.artSrc.includes('/images/atelier/'))) image.src = cardEntry.artSrc;
@@ -338,13 +374,15 @@ const chapters = project.id === 'terraseg-ai'
         experience.classList.add('is-card-arrival');
         try { sessionStorage.setItem('atelier-story-artwork', cardEntry.artSrc || ''); } catch { /* The story still opens normally. */ }
         requestAnimationFrame(() => {
+          if (motionPreference.matches) { arrival.remove(); experience.classList.remove('is-card-arrival'); experience.classList.add('story-content-ready'); return; }
           const visual = experience.querySelector<HTMLElement>('.visual-stage');
           const rect = visual?.getBoundingClientRect();
           if (!rect) { arrival.remove(); return; }
           const clip = `inset(${rect.top}px ${Math.max(0, innerWidth - rect.right)}px ${Math.max(0, innerHeight - rect.bottom)}px ${rect.left}px round 3px)`;
-          arrival.animate([{ clipPath: 'inset(0 0 0 0 round 0px)', opacity: 1 }, { clipPath: clip, opacity: .16 }], { duration: 940, easing: 'cubic-bezier(.2,.75,.18,1)', fill: 'forwards' }).finished.finally(() => arrival.remove());
-          window.setTimeout(() => experience.classList.add('story-content-ready'), 370);
-          window.setTimeout(() => experience.classList.remove('is-card-arrival'), 1100);
+          const arrivalAnimation = arrival.animate([{ clipPath: 'inset(0 0 0 0 round 0px)', opacity: 1 }, { clipPath: clip, opacity: .16 }], { duration: 780, easing: 'cubic-bezier(.2,.75,.18,1)', fill: 'forwards' });
+          arrivalAnimation.finished.then(() => arrival.remove(), () => arrival.remove());
+          schedule(() => experience.classList.add('story-content-ready'), 300);
+          schedule(() => experience.classList.remove('is-card-arrival'), 850);
         });
       }
     } catch { /* Continue with the regular case-study entrance. */ }
@@ -354,7 +392,7 @@ const chapters = project.id === 'terraseg-ai'
         sessionStorage.removeItem('atelier-entry-transition');
         experience.dataset.entryTransition = enteringStyle;
         requestAnimationFrame(() => experience.classList.add('is-entering'));
-        window.setTimeout(() => experience.classList.remove('is-entering'), 900);
+        schedule(() => experience.classList.remove('is-entering'), 900);
       }
     } catch { /* Private browsing may disable sessionStorage; normal navigation still works. */ }
     experience.querySelectorAll<HTMLAnchorElement>('[data-transition-kind]').forEach((link) => link.addEventListener('click', (event) => {
@@ -366,13 +404,13 @@ const chapters = project.id === 'terraseg-ai'
       if (!href || href.startsWith('#') && !href.includes('/projects')) return;
       event.preventDefault();
       const kind = link.dataset.transitionKind ?? 'typographic';
-      try { sessionStorage.setItem('atelier-entry-transition', kind); } catch { /* Continue without the entry flourish. */ }
+      try { if (returnProject) sessionStorage.removeItem('atelier-entry-transition'); else sessionStorage.setItem('atelier-entry-transition', kind); } catch { /* Continue without the entry flourish. */ }
       if (transitionCurtain) {
         transitionCurtain.dataset.style = kind;
         transitionCurtain.classList.add('is-active');
-        window.setTimeout(() => { window.location.assign(href); }, 460);
+        schedule(() => { window.location.assign(href); }, 390);
       } else window.location.assign(href);
-    }));
+    }, { signal }));
   }
 </script>
 
@@ -381,7 +419,7 @@ const chapters = project.id === 'terraseg-ai'
   .skip-story-transition{position:fixed;z-index:20002;top:12px;left:12px;padding:9px 12px;background:#f7f0e8;color:#2a202b;font:11px var(--font-mono,monospace);transform:translateY(-160%)}.skip-story-transition:focus{transform:none}
   .story-arrival{position:fixed;z-index:20001;inset:0;overflow:hidden;background:#1d1720;pointer-events:none}.story-arrival img{width:100%;height:100%;object-fit:cover;filter:saturate(.84) contrast(1.04)}.story-arrival:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,#17131b30,#17131b86)}.story-arrival i{position:absolute;z-index:2;width:2px;height:2px;border-radius:50%;background:#e1c590;box-shadow:0 0 8px #e1c590;animation:arrival-dust 820ms ease-out calc(var(--i)*18ms) both}
   .story-return-flight{position:fixed;z-index:20001;inset:0;overflow:hidden;pointer-events:none;background:#1d1720}.story-return-flight img{width:100%;height:100%;object-fit:cover}
-  .experience.is-card-arrival .hero-copy h1{clip-path:inset(0 100% 0 0);opacity:1;animation:none!important}.experience.story-content-ready .hero-copy h1{animation:story-title-mask .82s cubic-bezier(.2,.78,.18,1) both!important}.experience.is-card-arrival .hero-copy>:not(h1){opacity:0}.experience.story-content-ready .hero-copy>:not(h1){animation:story-copy-enter .55s ease-out both}.experience.story-content-ready .hero-copy>:nth-child(2){animation-delay:80ms}.experience.story-content-ready .hero-copy>:nth-child(3){animation-delay:160ms}.experience.story-content-ready .hero-copy>:nth-child(4){animation-delay:240ms}.experience.is-card-arrival .story-intro,.experience.is-card-arrival .chapter-layout{opacity:0}.experience.story-content-ready .story-intro,.experience.story-content-ready .chapter-layout{animation:story-copy-enter .65s 280ms ease-out both}
+  .experience.is-card-arrival .hero-copy h1{clip-path:none;opacity:1;animation:none!important}.experience.story-content-ready .hero-copy h1{animation:none!important}.experience.is-card-arrival .hero-copy>:not(h1){opacity:0}.experience.story-content-ready .hero-copy>:not(h1){animation:story-copy-enter .55s ease-out both}.experience.story-content-ready .hero-copy>:nth-child(2){animation-delay:80ms}.experience.story-content-ready .hero-copy>:nth-child(3){animation-delay:160ms}.experience.story-content-ready .hero-copy>:nth-child(4){animation-delay:240ms}.experience.is-card-arrival .story-intro,.experience.is-card-arrival .chapter-layout{opacity:0}.experience.story-content-ready .story-intro,.experience.story-content-ready .chapter-layout{animation:story-copy-enter .65s 280ms ease-out both}
   @keyframes story-title-mask{from{clip-path:inset(0 100% 0 0);transform:translateX(-.025em)}to{clip-path:inset(0);transform:none}}
   @keyframes story-copy-enter{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
   @keyframes arrival-dust{0%{opacity:0;translate:0 0}20%{opacity:.9}100%{opacity:0;translate:var(--tx) var(--ty)}}
@@ -454,5 +492,102 @@ const chapters = project.id === 'terraseg-ai'
   .experience--terrain .terrain-mask{animation:none;transform:translateX(var(--mask-travel,0px)) rotate(var(--mask-rotation,0deg));transition:transform .12s linear}
   .experience--terrain .terrain-contours{background-position:0 var(--contour-travel,0px);transform:rotate(var(--contour-rotation,-8deg)) scale(var(--contour-scale,1))}
   .experience--care .care-rail{scale:var(--care-scale,.35) 1;transition:scale .12s linear}
+  /* Editorial refinement: readable chapter rhythm, clearer type hierarchy, and a more deliberate canvas. */
+  .experience{--line:rgba(43,35,40,.17)}
+  .experience--care{--muted:#596b70}
+  .experience-nav{max-width:1440px;height:82px;border-bottom-color:color-mix(in srgb,var(--accent) 25%,transparent)}
+  .experience .hero-copy h1{clip-path:none!important;animation:none!important}
+  .wordmark{font-size:11px;letter-spacing:.16em}
+  .return-link{font-size:14px}
+  .experience-hero{max-width:1440px;min-height:min(850px,calc(100svh - 82px));}
+  .hero-copy h1{font-size:clamp(58px,7.2vw,108px);line-height:.91;letter-spacing:-.05em}
+  .hero-deck{font-size:clamp(19px,1.8vw,24px);line-height:1.48;max-width:30ch}
+  .eyebrow{font-size:11px;letter-spacing:.14em}
+  .hero-tags span{font-size:10px;padding:8px 11px}
+  .story-link,.repository-link{font-size:13px}
+  .visual-stage{filter:drop-shadow(0 24px 35px rgba(30,23,28,.1))}
+  .story-intro{max-width:1320px;padding-block:var(--space-section);gap:clamp(3rem,8vw,8rem)}
+  .story-intro h2,.chapter h2,.project-resources h2{font-size:clamp(38px,4.2vw,64px);line-height:1.02}
+  .story-intro>p{font-size:clamp(18px,1.35vw,20px);line-height:1.75;color:var(--muted);max-width:62ch}
+  .chapter-layout{max-width:1480px;grid-template-columns:minmax(160px,190px) minmax(0,1fr);gap:clamp(42px,7vw,104px);padding-bottom:clamp(90px,11vw,150px)}
+  .chapter-rail{top:96px;gap:4px}
+  .rail-label{font-size:10px}
+  .chapter-rail a{font-size:12px;line-height:1.45;padding:10px 0}
+  .chapter-rail i{font-size:10px}
+  .chapter{grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:clamp(30px,5vw,72px);padding:var(--space-chapter) 0}
+  .chapter-number{font-size:11px;left:-48px}
+  .chapter-copy .eyebrow{font-size:10px;margin-bottom:15px}
+  .experience .chapter h2{font-size:clamp(36px,3.5vw,52px);line-height:1.05;margin-bottom:22px}
+  .experience .chapter-copy>p:not(.eyebrow){font:400 var(--text-reading)/1.78 var(--font-sans,Arial,sans-serif);color:var(--muted);max-width:66ch}
+  .experience .chapter-copy .chapter-detail{margin-top:17px!important;color:var(--muted)!important;opacity:.9;font-size:.94em!important}
+  .chapter-visual{min-height:250px;border-color:color-mix(in srgb,var(--accent) 25%,var(--line));box-shadow:0 18px 44px -34px rgba(27,20,28,.55)}
+  .chapter.is-visible .chapter-visual{box-shadow:0 26px 56px -34px rgba(27,20,28,.48)}
+  .visual-kicker{font-size:9px;letter-spacing:.11em}
+  .result-protocol h3{font-size:10px}
+  .result-protocol>p{font:400 13px/1.65 var(--font-sans,Arial,sans-serif);color:var(--muted)}
+  .metric-strip{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:18px}
+  .metric-strip span{font:10px/1.45 var(--font-mono,monospace)}
+  .metric-strip strong{font-size:clamp(22px,2.4vw,32px)}
+  .evidence-gallery{padding-block:clamp(60px,8vw,100px)}
+  .evidence-gallery>h2{font-size:clamp(38px,4.2vw,60px)}
+  .gallery-intro,.gallery-disclaimer{font-size:15px;line-height:1.7;max-width:72ch}
+  .figure-tabs button{font-size:12px}
+  .evidence-figure figcaption b{font-size:16px}
+  .evidence-figure figcaption small{font-size:13px;line-height:1.5}
+  .project-resources{padding-block:clamp(58px,8vw,100px)}
+  .project-switcher a b{font-size:clamp(14px,1.25vw,18px)}
+  @media(max-width:950px){.chapter{grid-template-columns:1fr}.chapter-visual{min-height:240px}.chapter-number{left:-36px}}
+  @media(max-width:700px){
+    .experience-nav{height:66px;padding-inline:20px}.wordmark{font-size:9px;letter-spacing:.12em;gap:8px}.wordmark-mark{width:28px;height:28px}.return-link{font-size:13px}
+    .experience-hero{padding:42px 20px 28px;gap:22px}.hero-copy h1{font-size:clamp(48px,13vw,68px);line-height:.96}.hero-deck{font-size:19px;line-height:1.5}.hero-actions{gap:14px;margin:25px 0;flex-wrap:wrap}.hero-tags{gap:7px}.hero-tags span{font-size:9px;padding:7px 9px}.visual-stage{height:clamp(350px,100vw,480px);min-height:0}
+    .story-intro{padding:72px 22px;gap:20px}.story-intro h2,.chapter h2,.project-resources h2{font-size:clamp(36px,10vw,48px)}.story-intro>p{font-size:18px;line-height:1.7}
+    .chapter-layout{padding:0 22px 76px}.chapter-rail a{font-size:11px}.chapter{padding:44px 0 52px;gap:20px}.chapter-copy .eyebrow{font-size:9px}.experience .chapter h2{font-size:clamp(34px,9vw,44px);margin-bottom:16px}.experience .chapter-copy>p:not(.eyebrow){font-size:16px;line-height:1.72}.chapter-visual{min-height:210px}.visual-kicker{font-size:8px}
+    .metric-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.metric-strip span{font-size:9px}.result-protocol h3{font-size:9px}.result-protocol>p{font-size:12px}.evidence-gallery>h2{font-size:clamp(34px,9vw,46px)}.gallery-intro,.gallery-disclaimer{font-size:14px}.figure-tabs{gap:7px}.figure-tabs button{font-size:11px}
+  }
+  /* Chapter entrances differ by project; copy stays visible without script and animates only once observed. */
+  .experience .chapter.reveal{opacity:1;transform:none;transition:none}
+  .experience .chapter-copy .eyebrow,.experience .chapter-copy h2,.experience .chapter-copy>p:not(.eyebrow){opacity:1;transform:none;clip-path:none}
+  .experience .chapter.is-visible .chapter-copy .eyebrow{animation:chapter-label-in .38s ease-out both}
+  .experience .chapter.is-visible .chapter-copy>p:nth-of-type(2){animation:chapter-copy-in .5s .12s cubic-bezier(.2,.75,.2,1) both}
+  .experience .chapter.is-visible .chapter-copy .chapter-detail{animation:chapter-copy-in .5s .2s cubic-bezier(.2,.75,.2,1) both}
+  .experience--terrain .chapter-visual{clip-path:inset(0 0 0 9%);transition:clip-path .72s cubic-bezier(.2,.78,.18,1),box-shadow .35s ease}
+  .experience--terrain .chapter.is-visible .chapter-visual{clip-path:inset(0)}
+  .experience--water .chapter.is-visible .mini-water i{animation:ripple-ring-in .9s cubic-bezier(.16,.8,.2,1) both}
+  .experience--water .chapter.is-visible .mini-water i:nth-child(2){animation-delay:.12s}
+  .experience--water .chapter.is-visible .mini-water i:nth-child(3){animation-delay:.24s}
+  .experience--care .care-rail{transform-origin:left center}
+  .experience--care .chapter.is-visible .mini-care>*{animation:care-module-in .46s cubic-bezier(.2,.75,.2,1) both}
+  .experience--care .chapter.is-visible .mini-care>*:nth-child(2){animation-delay:.08s}
+  .experience--care .chapter.is-visible .mini-care>*:nth-child(3){animation-delay:.16s}
+  .experience--care .chapter.is-visible .mini-care>*:nth-child(4){animation-delay:.24s}
+  .experience--care .chapter.is-visible .mini-care>*:nth-child(5){animation-delay:.32s}
+  .experience--care .care-panel{animation:care-module-in .48s cubic-bezier(.2,.75,.2,1) both}
+  .experience--care .care-panel.panel-appointment{animation-delay:.09s}
+  .experience--care .care-panel.panel-admission{animation-delay:.18s}
+  .experience--pathways .path-lit path{animation:none}
+  .experience--pathways .path-node{transform-box:fill-box;transform-origin:center;transition:opacity .18s ease,transform .24s cubic-bezier(.2,.75,.2,1)}
+  .experience--water .agent-lines path{animation:none}
+  .experience--care .care-rail{scale:var(--workflow-scale,var(--stage-progress,.35)) 1}
+  .transition-curtain.is-active{animation-duration:.36s}
+  .transition-curtain.is-active .curtain-word{animation-duration:.28s;animation-delay:.02s}
+  .transition-curtain[data-style="fracture"].is-active{animation-duration:.36s}
+  .transition-curtain[data-style="fracture"].is-active i{animation-duration:.34s}
+  .transition-curtain[data-style="fluid"].is-active,.transition-curtain[data-style="typographic"].is-active{animation-duration:.36s}
+  .transition-curtain[data-style="network"].is-active{animation-duration:.34s}
+  .experience--terrain .terrain-contours{clip-path:inset(0 var(--contour-hide,0%) 0 0);transition:clip-path .12s linear,background-position .12s linear}
+  @keyframes chapter-label-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes chapter-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes ripple-ring-in{0%{opacity:0;scale:.66}65%{opacity:.5}100%{opacity:var(--ripple-opacity-a,.36);scale:1}}
+  @keyframes care-module-in{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){.chapter-visual{transform:none!important;will-change:auto}.chapter-evidence{clip-path:none;opacity:.25}.experience *, .experience *:before,.experience *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+  /* Cross-route arrival is inserted by script after navigation and is outside Astro's scoped subtree. */
+  :global(.story-arrival){position:fixed;z-index:20001;inset:0;overflow:hidden;background:#1d1720;pointer-events:none;isolation:isolate}
+  :global(.story-arrival[data-project-id="terraseg-ai"]){background:#161a18}
+  :global(.story-arrival[data-project-id="aquaguard-ai"]){background:#091e27}
+  :global(.story-arrival[data-project-id="hospital-management-system"]){background:#1c2d34}
+  :global(.story-arrival[data-project-id="ai-planning-search"]){background:#111423}
+  :global(.story-arrival img){display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.84) contrast(1.04)}
+  :global(.story-arrival::after){content:"";position:absolute;inset:0;background:linear-gradient(110deg,#17131b30,#17131b86)}
+  :global(.story-arrival i){position:absolute;z-index:2;width:2px;height:2px;border-radius:50%;background:#e1c590;box-shadow:0 0 8px #e1c590;animation:arrival-dust 760ms ease-out calc(var(--i)*16ms) both}
+  @media(prefers-reduced-motion:reduce){:global(.story-arrival),:global(.story-arrival *){animation:none!important;transition:none!important}}
 </style>
