@@ -1,6 +1,8 @@
 ---
 // src/components/Footer.astro
 import { PORTFOLIO_DATA } from '../data/portfolioData';
+const isProjectStory = Astro.url.pathname.startsWith(`${import.meta.env.BASE_URL}projects/`);
+const returnHref = isProjectStory ? '#story-top' : `${import.meta.env.BASE_URL}#hero`;
 ---
 
 <footer class="atelier-footer" role="contentinfo">
@@ -24,7 +26,7 @@ import { PORTFOLIO_DATA } from '../data/portfolioData';
       </div>
 
       <div class="footer-nav">
-        <a href={`${import.meta.env.BASE_URL}#hero`} class="back-top-btn">
+        <a href={returnHref} class="back-top-btn">
           <span>Return to Top ↑</span>
         </a>
       </div>

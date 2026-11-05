@@ -189,28 +189,28 @@ export const PORTFOLIO_DATA = {
     {
       id: "hospital-management-system",
       title: "Hospital Management System (HMS)",
-      subtitle: "Learning Prototype & LLM Prompting Exploration",
+      subtitle: "Role-Based Hospital Administration Learning Prototype",
       status: "Learning Prototype",
-      tagline: "Academic learning prototype exploring full-stack healthcare administration workflows and AI prompt design.",
+      tagline: "An academic Flask and MongoDB project organized around role-specific hospital administration workflows.",
       category: "Software Engineering",
-      tags: ["Flask", "MongoDB", "Python", "HTML/CSS", "Git", "Prompt Design", "Healthcare Workflow"],
-      description: "A small hospital management learning prototype developed to explore core healthcare data workflows alongside practical LLM prompt engineering. Implemented patient records, doctor appointment scheduling, and basic admission workflows while using LLMs as an iterative engineering aid.",
-      problem: "Understanding full-stack web architecture, database consistency, and how context and system instruction engineering affect LLM-assisted code generation in enterprise software workflows.",
-      approach: "Built modular backend routes with Flask, connected a flexible document store with MongoDB, and used ChatGPT as an interactive learning aid to explore prompt design and understand how explicit constraints influence model outputs.",
+      tags: ["Flask", "MongoDB", "Python", "Jinja", "Flask-Login", "Role-Based Workflows"],
+      description: "An academic hospital-management scaffold using Flask, MongoDB, Flask-Login and Jinja templates. Its role-specific routes cover account access, appointments, patient records and staff administration.",
+      problem: "Exploring how a server-rendered application can organize hospital administration pages around distinct user roles and shared MongoDB records.",
+      approach: "The repository uses a Flask application factory, Flask-Login authentication, role-specific blueprints and MongoDB collections for accounts and workflow records.",
       architecture: [
-        "Backend API: Python Flask REST endpoints handling patient intake, appointment scheduling, and doctor records.",
-        "Data Storage: MongoDB document collections for patient demographics, clinical notes, and appointment slots.",
-        "Frontend Interface: Clean semantic HTML5, CSS, and lightweight JavaScript client views.",
-        "Version Control: Git-based development workflow with feature branching and commit tracking."
+        "Application: Python Flask routes and Jinja templates, organized into admin, doctor, patient, nurse and receptionist blueprints.",
+        "Authentication: Flask-Login sessions and role checks on protected workflows.",
+        "Persistence: MongoDB collections accessed from the Flask application context.",
+        "Interface: Server-rendered HTML templates with static CSS and JavaScript assets."
       ],
       implementation: [
-        "Built a Flask and MongoDB learning prototype with patient, doctor, appointment, and admission workflow scaffolding.",
-        "Explored system prompt templates and constraint modeling during development."
+        "Implemented role-specific routes for login/registration, patient appointment requests, doctor appointment and patient actions, staff scheduling, and admin user management.",
+        "Added dashboard and record views for appointment, prescription, billing, report, schedule and administrative data stored in MongoDB."
       ],
       results: [],
       limitationsAndDisclaimers: [
-        "LEARNING PROTOTYPE: This is an educational academic prototype created to learn full-stack development and prompt engineering.",
-        "NOT FOR CLINICAL USE: Does not contain HIPAA/production clinical compliance certifications."
+        "LEARNING SCAFFOLD: The repository does not establish a complete or production-validated hospital information system.",
+        "NOT FOR CLINICAL USE: Do not enter real patient data. Security, privacy, compliance and workflow validation are not established by this project."
       ],
       links: [
         { label: "Code Repository", url: "https://github.com/Sharmila534/hospital-management-system", isExternal: true, isPlaceholder: false }
